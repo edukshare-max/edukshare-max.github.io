@@ -24615,7 +24615,7 @@ s=p}while(true)switch(s){case 0:p=4
 n=A.h1("https://carnet-alumnos-nodes.onrender.com/auth/login")
 A.ci("\ud83d\ude80 JWT LOGIN START - URL: "+A.l(n))
 i=t.N
-m=A.aj(["correo",a,"matricula",b],i,i)
+m=A.aj(["email",a,"matricula",b],i,i)
 A.ci("\ud83d\udce4 JWT PAYLOAD: "+A.l(m))
 h=A.aj(["Content-Type","application/json"],i,i)
 s=7
