@@ -15,8 +15,8 @@ const RESOURCES = {"flutter.js": "4b2350e14c6650ba82871f60906437ea",
 "carousel-netflix-styles.css": "fac557b4bcf8139981bd4a284568ca41",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
 "assets/AssetManifest.bin.json": "69a99f98c8b1fb8111c5fb961769fcd8",
-"assets/fonts/MaterialIcons-Regular.otf": "d06353b51184936e4603fb4e85a1010c",
-"assets/NOTICES": "202ecfcf712553b4c49695f4e400720d",
+"assets/fonts/MaterialIcons-Regular.otf": "1acaff78d9828fa15093b021590640a9",
+"assets/NOTICES": "e40c1ab82cd1317643634502e80eae8c",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "e986ebe42ef785b27164c36a9abc7818",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
@@ -38,10 +38,10 @@ const RESOURCES = {"flutter.js": "4b2350e14c6650ba82871f60906437ea",
 "carousel-modal-styles.css": "8f9fedd5ec8fe7953cf7cb22e7115927",
 "fix_login.js": "6c88c66e979bb5728fd476746799c14c",
 "api_config.js": "f29432ce71fce2f7107ed5b9b9eb3f69",
-"flutter_bootstrap.js": "38c0f635e41dacf428e1c19892261fb3",
+"flutter_bootstrap.js": "a68fe88ec24dee297e713aaf432f5a98",
 "version.json": "319e359c9bc4b44401abedbc3d5cea99",
 "index-flutter-original.html": "3af4b98ce3c13a646890b96317d590fc",
-"main.dart.js": "90e913b2853b4408f2e2d340bcf8f1b1"};
+"main.dart.js": "71b6d3698a6f79621135b76e1e66cc31"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
