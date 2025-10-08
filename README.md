@@ -1,10 +1,17 @@
-# 🎓 Carnet Digital UAGro
+# 🎓 Carnet Digital UAGro - Flutter Web
 
-**Sistema de identificación digital para estudiantes de la Universidad Autónoma de Guerrero**
+> **Aplicación web moderna para la identificación estudiantil digital de la Universidad Autónoma de Guerrero**
 
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.35.4-blue.svg)](https://flutter.dev/)
-[![Dart Version](https://img.shields.io/badge/Dart-3.9.2-blue.svg)](https://dart.dev/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.35.4-blue.svg)](https://flutter.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Deployment](https://img.shields.io/badge/Deployment-GitHub%20Pages-yellow.svg)](https://app.carnetdigital.space)
+[![Status](https://img.shields.io/badge/Status-Production-green.svg)](https://app.carnetdigital.space)
+
+## 🌐 Enlaces de Producción
+
+- **🚀 Aplicación en Vivo**: [app.carnetdigital.space](https://app.carnetdigital.space)
+- **🔧 Backend API**: [carnet-alumnos-nodes.onrender.com](https://carnet-alumnos-nodes.onrender.com)
+- **📊 Repositorio**: [github.com/edukshare-max/edukshare-max.github.io](https://github.com/edukshare-max/edukshare-max.github.io)
 
 ## 🌟 Características
 
