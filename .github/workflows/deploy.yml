@@ -1,0 +1,51 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+        
+    - name: Get dependencies
+      run: flutter pub get
+      
+    - name: Build web
+      run: |
+        flutter build web --dart-define=API_BASE_URL=https://carnet-alumnos-nodes.onrender.com --dart-define=DEBUG_MODE=false --web-renderer html
+        
+    - name: Add carousel components and fix login
+      run: |
+        # Verificar que los archivos existen
+        ls -la carousel-*.js carousel-*.css fix_login.js index-flutter-original.html
+        
+        # Copiar componentes del carrusel y fix de login
+        cp carousel-netflix-component.js build/web/
+        cp carousel-netflix-styles.css build/web/
+        cp carousel-modal-styles.css build/web/
+        cp fix_login.js build/web/
+        
+        # Usar la versión con carrusel integrado y fix de login
+        cp index-flutter-original.html build/web/index.html
+        
+        # Verificar que se copiaron correctamente
+        ls -la build/web/
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/web
+        cname: app.carnetdigital.space

@@ -1,0 +1,108 @@
+/* Estilos adicionales para el modal y toast del carrusel */
+
+.promocion-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.promocion-modal-overlay.show {
+    opacity: 1;
+}
+
+.promocion-modal {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.promocion-modal-overlay.show .promocion-modal {
+    transform: scale(1);
+}
+
+.promocion-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.promocion-modal-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 18px;
+}
+
+.promocion-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.promocion-modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.promocion-modal-body {
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.promocion-modal-body p {
+    margin: 0 0 12px 0;
+}
+
+.promocion-modal-body strong {
+    color: #374151;
+    font-weight: 600;
+}
+
+.promocion-modal-actions {
+    padding: 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.carousel-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1f2937;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.carousel-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}

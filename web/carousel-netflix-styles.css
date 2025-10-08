@@ -1,0 +1,402 @@
+/**
+ * PROMOCIONES SALUD UAGro - Estilo Netflix/Prime Video
+ * Carrusel horizontal profesional para app.carnetdigital.space
+ * Integración no invasiva que respeta el diseño existente
+ */
+
+/* ========================================
+   CARRUSEL ESTILO STREAMING - CSS
+   ======================================== */
+
+.promociones-carousel-section {
+    margin-top: 32px;
+    padding: 24px 0;
+    position: relative;
+    font-family: inherit;
+}
+
+.promociones-carousel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.promociones-carousel-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.promociones-carousel-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin: 4px 0 0 0;
+    font-weight: 400;
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.carousel-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-nav-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #374151;
+    transform: scale(1.05);
+}
+
+.carousel-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.carousel-auto-toggle {
+    font-size: 12px;
+    color: #64748b;
+    background: none;
+    border: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.carousel-auto-toggle:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.carousel-auto-toggle.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.promociones-carousel-container {
+    position: relative;
+    overflow: hidden;
+    margin: 0 20px;
+    border-radius: 12px;
+}
+
+.promociones-carousel-track {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.promocion-carousel-card {
+    flex: 0 0 320px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    position: relative;
+}
+
+.promocion-carousel-card:hover {
+    transform: scale(1.02) translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.promocion-carousel-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--dept-gradient);
+    z-index: 1;
+}
+
+/* Gradientes por departamento */
+.promocion-carousel-card.medicina { --dept-gradient: linear-gradient(90deg, #dc2626, #ef4444); }
+.promocion-carousel-card.enfermeria { --dept-gradient: linear-gradient(90deg, #059669, #10b981); }
+.promocion-carousel-card.odontologia { --dept-gradient: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+.promocion-carousel-card.psicologia { --dept-gradient: linear-gradient(90deg, #ea580c, #f97316); }
+.promocion-carousel-card.veterinaria { --dept-gradient: linear-gradient(90deg, #0891b2, #06b6d4); }
+.promocion-carousel-card.general { --dept-gradient: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+.carousel-card-content {
+    padding: 20px;
+}
+
+.carousel-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.carousel-dept-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.carousel-dept-badge.medicina { background: #fef2f2; color: #dc2626; }
+.carousel-dept-badge.enfermeria { background: #ecfdf5; color: #059669; }
+.carousel-dept-badge.odontologia { background: #f3e8ff; color: #7c3aed; }
+.carousel-dept-badge.psicologia { background: #fff7ed; color: #ea580c; }
+.carousel-dept-badge.veterinaria { background: #ecfeff; color: #0891b2; }
+.carousel-dept-badge.general { background: #eff6ff; color: #3b82f6; }
+
+.carousel-priority {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.carousel-priority.alta { background: #fee2e2; color: #dc2626; }
+.carousel-priority.media { background: #fef3c7; color: #d97706; }
+.carousel-priority.baja { background: #dcfce7; color: #16a34a; }
+
+.carousel-card-description {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #374151;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.8em;
+}
+
+.carousel-card-target {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.carousel-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.carousel-btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.carousel-btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    transform: translateY(-1px);
+}
+
+.carousel-btn-share {
+    width: 36px;
+    height: 36px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.carousel-btn-share:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #374151;
+}
+
+/* Indicadores de progreso */
+.carousel-progress {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 0 20px;
+}
+
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-dot.active {
+    background: #3b82f6;
+    transform: scale(1.2);
+}
+
+.carousel-dot:hover {
+    background: #94a3b8;
+}
+
+/* Estados especiales */
+.carousel-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #6b7280;
+}
+
+.carousel-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 12px;
+}
+
+.carousel-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.carousel-empty-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.6;
+}
+
+.carousel-empty-text {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .promocion-carousel-card {
+        flex: 0 0 280px;
+    }
+    
+    .promociones-carousel-header {
+        padding: 0 16px;
+    }
+    
+    .promociones-carousel-container {
+        margin: 0 16px;
+    }
+    
+    .carousel-controls {
+        gap: 6px;
+    }
+    
+    .carousel-nav-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .carousel-auto-toggle {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .promocion-carousel-card {
+        flex: 0 0 260px;
+    }
+    
+    .promociones-carousel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .carousel-controls {
+        align-self: flex-end;
+    }
+    
+    .promociones-carousel-title {
+        font-size: 18px;
+    }
+}
+
+/* Animaciones */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0; 
+        transform: translateX(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+.promocion-carousel-card {
+    animation: slideIn 0.4s ease-out;
+}
+
+/* Scroll suave para navegadores que lo soporten */
+@supports (scroll-behavior: smooth) {
+    .promociones-carousel-track {
+        scroll-behavior: smooth;
+    }
+}
