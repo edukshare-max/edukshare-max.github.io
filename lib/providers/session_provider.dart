@@ -85,75 +85,33 @@ class SessionProvider extends ChangeNotifier {
     }
   }
 
-  // Cargar citas médicas
+  // 🏥 CARGAR CITAS MÉDICAS - BACKEND REAL SASU
   Future<void> _loadCitasData() async {
     if (_token == null) return;
 
     try {
-      print('🔍 Cargando citas médicas...');
+      print('🔍 Cargando citas médicas desde SASU backend...');
       final data = await ApiService.getCitas(_token!);
+      
       if (data != null && data.isNotEmpty) {
         _citas = data;
-        print('✅ Citas cargadas: ${_citas.length} citas');
+        print('✅ CITAS REALES CARGADAS: ${_citas.length} citas');
+        
+        // Debug: mostrar primera cita
+        if (_citas.isNotEmpty) {
+          print('📋 PRIMERA CITA REAL: ${_citas.first}');
+        }
       } else {
-        print('ℹ️ No hay citas en el backend, generando citas de demostración...');
-        // Generar citas de demostración para la presentación
-        _citas = _generateDemoCitas();
-        print('✅ Citas de demostración generadas: ${_citas.length} citas');
+        print('⚠️ NO HAY CITAS DISPONIBLES EN EL BACKEND SASU');
+        _citas = [];
       }
+      
       notifyListeners();
     } catch (e) {
-      print('❌ Error cargando citas: $e');
-      print('ℹ️ Generando citas de demostración...');
-      _citas = _generateDemoCitas();
+      print('❌ ERROR CARGANDO CITAS: $e');
+      _citas = [];
       notifyListeners();
     }
-  }
-
-  // Generar citas de demostración para la presentación
-  List<CitaModel> _generateDemoCitas() {
-    final now = DateTime.now();
-    return [
-      CitaModel(
-        id: 'cita_001',
-        matricula: _carnet?.matricula ?? '15662',
-        fecha: now.add(const Duration(days: 3)),
-        hora: '10:00',
-        tipo: 'Consulta General',
-        servicio: 'Medicina General',
-        doctor: 'Dr. María González',
-        estado: 'CONFIRMADA',
-        motivo: 'Revisión general de salud',
-        lugar: 'Consultorio 1 - Centro Médico UAGro',
-        notas: 'Traer estudios previos si los tiene',
-      ),
-      CitaModel(
-        id: 'cita_002',
-        matricula: _carnet?.matricula ?? '15662',
-        fecha: now.add(const Duration(days: 7)),
-        hora: '14:30',
-        tipo: 'Especialidad',
-        servicio: 'Odontología',
-        doctor: 'Dr. Carlos Ramírez',
-        estado: 'PENDIENTE',
-        motivo: 'Limpieza dental',
-        lugar: 'Consultorio Dental - UAGro',
-        notas: 'Confirmar asistencia 24 horas antes',
-      ),
-      CitaModel(
-        id: 'cita_003',
-        matricula: _carnet?.matricula ?? '15662',
-        fecha: now.subtract(const Duration(days: 2)),
-        hora: '09:00',
-        tipo: 'Consulta General',
-        servicio: 'Medicina General',
-        doctor: 'Dra. Ana Martínez',
-        estado: 'COMPLETADA',
-        motivo: 'Seguimiento de alergias',
-        lugar: 'Consultorio 3 - Centro Médico UAGro',
-        notas: 'Revisión completada exitosamente',
-      ),
-    ];
   }
 
   // Método público para recargar citas

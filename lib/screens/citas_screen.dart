@@ -88,21 +88,25 @@ class _CitasScreenState extends State<CitasScreen> {
     IconData statusIcon;
     
     switch (cita.estado.toLowerCase()) {
-      case 'confirmada':
+      case 'programada':
         statusColor = UAGroColors.success;
         statusIcon = Icons.check_circle;
         break;
-      case 'pendiente':
-        statusColor = UAGroColors.warning;
-        statusIcon = Icons.schedule;
+      case 'confirmada':
+        statusColor = UAGroColors.primary;
+        statusIcon = Icons.verified;
         break;
       case 'cancelada':
         statusColor = UAGroColors.error;
         statusIcon = Icons.cancel;
         break;
-      default:
+      case 'completada':
         statusColor = Colors.grey;
-        statusIcon = Icons.help;
+        statusIcon = Icons.done_all;
+        break;
+      default:
+        statusColor = UAGroColors.warning;
+        statusIcon = Icons.schedule;
     }
 
     return Card(
@@ -140,7 +144,7 @@ class _CitasScreenState extends State<CitasScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    cita.tipo,
+                    cita.departamento,
                     style: const TextStyle(
                       fontSize: 12,
                       color: UAGroColors.primary,
@@ -153,7 +157,7 @@ class _CitasScreenState extends State<CitasScreen> {
             
             const SizedBox(height: 12),
             
-            // Fecha y hora
+            // Fecha y hora - usando datos reales del backend
             Row(
               children: [
                 const Icon(
@@ -163,7 +167,7 @@ class _CitasScreenState extends State<CitasScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _formatFecha(cita.fecha),
+                  cita.fechaFormateada,
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 16,
@@ -183,7 +187,7 @@ class _CitasScreenState extends State<CitasScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  cita.hora,
+                  cita.horario, // Usa el getter que combina inicio - fin
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -194,29 +198,28 @@ class _CitasScreenState extends State<CitasScreen> {
             
             const SizedBox(height: 12),
             
-            // Doctor
-            if (cita.doctor.isNotEmpty) ...[
-              Row(
-                children: [
-                  const Icon(
-                    Icons.person,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Dr. ${cita.doctor}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+            // Departamento
+            Row(
+              children: [
+                const Icon(
+                  Icons.local_hospital,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    cita.departamento,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-            ],
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 8),
             
             // Motivo
             if (cita.motivo.isNotEmpty) ...[
@@ -242,39 +245,8 @@ class _CitasScreenState extends State<CitasScreen> {
               ),
             ],
             
-            // Notas
-            if (cita.notas != null && cita.notas!.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Notas:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      cita.notas!,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            
-            // Botones de acción (solo para citas pendientes)
-            if (cita.estado.toLowerCase() == 'pendiente') ...[
+            // Botones de acción (solo para citas programadas)
+            if (cita.estado.toLowerCase() == 'programada') ...[
               const SizedBox(height: 16),
               Row(
                 children: [

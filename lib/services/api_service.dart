@@ -89,10 +89,10 @@ class ApiService {
     }
   }
   
-  // 🏥 OBTENER CITAS MÉDICAS
+  // 🏥 OBTENER CITAS MÉDICAS - ENDPOINT REAL SASU
   static Future<List<CitaModel>> getCitas(String token) async {
     try {
-      final url = Uri.parse('$baseUrl/citas');
+      final url = Uri.parse('$baseUrl/me/citas'); // ✅ ENDPOINT CORRECTO
       
       print('🔍 GET CITAS REQUEST: $url');
       
