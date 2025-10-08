@@ -1,52 +1,93 @@
-// 🎓 MODELO DE DATOS - CARNET ESTUDIANTE UAGRO - BACKEND SASU REAL
+// 🎓 MODELO DE DATOS - CARNET ESTUDIANTE UAGRO - BACKEND SASU COMPLETO
 class CarnetModel {
   final String id;
   final String matricula;
   final String nombreCompleto;
   final String correo;
-  final String programa;
+  final int edad;
+  final String sexo;
   final String categoria;
+  final String programa;
   final String tipoSangre;
-  final String emergenciaContacto;
-  final String emergenciaTelefono;
+  final String enfermedadCronica;
   final String unidadMedica;
-  final bool usoSeguroUniversitario;
-  final String createdAt;
-  final String updatedAt;
+  final String numeroAfiliacion;
+  final String usoSeguroUniversitario;
+  final String donante;
+  final String emergenciaContacto;
+  final String discapacidad;
+  final String tipoDiscapacidad;
+  final String alergias;
+  final String emergenciaTelefono;
+  final String expedienteNotas;
+  final String expedienteAdjuntos;
+  
+  // Campos técnicos de la base de datos (opcionales)
+  final String? rid;
+  final String? self;
+  final String? etag;
+  final String? attachments;
+  final int? ts;
 
   CarnetModel({
     required this.id,
     required this.matricula,
     required this.nombreCompleto,
     required this.correo,
-    required this.programa,
+    required this.edad,
+    required this.sexo,
     required this.categoria,
+    required this.programa,
     required this.tipoSangre,
-    required this.emergenciaContacto,
-    required this.emergenciaTelefono,
+    required this.enfermedadCronica,
     required this.unidadMedica,
+    required this.numeroAfiliacion,
     required this.usoSeguroUniversitario,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.donante,
+    required this.emergenciaContacto,
+    required this.discapacidad,
+    required this.tipoDiscapacidad,
+    required this.alergias,
+    required this.emergenciaTelefono,
+    required this.expedienteNotas,
+    required this.expedienteAdjuntos,
+    this.rid,
+    this.self,
+    this.etag,
+    this.attachments,
+    this.ts,
   });
 
-  // 🔄 PARSE DESDE JSON BACKEND SASU REAL
+  // 🔄 PARSE DESDE JSON BACKEND SASU COMPLETO
   factory CarnetModel.fromJson(Map<String, dynamic> json) {
-    print('🔍 PARSING CARNET DATA: $json');
+    print('🔍 PARSING CARNET DATA COMPLETO: $json');
     return CarnetModel(
       id: json['id'] ?? '',
       matricula: json['matricula'] ?? '',
       nombreCompleto: json['nombreCompleto'] ?? '',
       correo: json['correo'] ?? '',
-      programa: json['programa'] ?? '',
+      edad: json['edad'] ?? 0,
+      sexo: json['sexo'] ?? '',
       categoria: json['categoria'] ?? '',
+      programa: json['programa'] ?? '',
       tipoSangre: json['tipoSangre'] ?? '',
-      emergenciaContacto: json['emergenciaContacto'] ?? '',
-      emergenciaTelefono: json['emergenciaTelefono'] ?? '',
+      enfermedadCronica: json['enfermedadCronica'] ?? '',
       unidadMedica: json['unidadMedica'] ?? '',
-      usoSeguroUniversitario: json['usoSeguroUniversitario'] ?? false,
-      createdAt: json['createdAt'] ?? '',
-      updatedAt: json['updatedAt'] ?? '',
+      numeroAfiliacion: json['numeroAfiliacion'] ?? '',
+      usoSeguroUniversitario: json['usoSeguroUniversitario'] ?? '',
+      donante: json['donante'] ?? '',
+      emergenciaContacto: json['emergenciaContacto'] ?? '',
+      discapacidad: json['discapacidad'] ?? '',
+      tipoDiscapacidad: json['tipoDiscapacidad'] ?? '',
+      alergias: json['alergias'] ?? '',
+      emergenciaTelefono: json['emergenciaTelefono'] ?? '',
+      expedienteNotas: json['expedienteNotas'] ?? '',
+      expedienteAdjuntos: json['expedienteAdjuntos'] ?? '',
+      rid: json['_rid'],
+      self: json['_self'],
+      etag: json['_etag'],
+      attachments: json['_attachments'],
+      ts: json['_ts'],
     );
   }
 
@@ -55,8 +96,15 @@ class CarnetModel {
   String get estado => categoria;
   String get telefono => emergenciaTelefono;
   String get contactoEmergencia => emergenciaContacto;
-  String get seguroMedico => usoSeguroUniversitario ? unidadMedica : 'Sin seguro universitario';
+  String get seguroMedico => usoSeguroUniversitario == 'Sí' ? unidadMedica : 'Sin seguro universitario';
   String get email => correo;
+  
+  // 🩺 GETTERS PARA INFORMACIÓN MÉDICA
+  bool get tieneEnfermedadCronica => enfermedadCronica.toLowerCase() != 'negadas' && enfermedadCronica.toLowerCase() != 'ninguna' && enfermedadCronica.isNotEmpty;
+  bool get tieneAlergias => alergias.toLowerCase() != 'negadas' && alergias.toLowerCase() != 'ninguna' && alergias.isNotEmpty;
+  bool get tieneDiscapacidad => discapacidad.toLowerCase() == 'sí' || discapacidad.toLowerCase() == 'si';
+  bool get esDonante => donante.toLowerCase() == 'sí' || donante.toLowerCase() == 'si';
+  bool get usaSeguroUniversitario => usoSeguroUniversitario.toLowerCase() == 'sí' || usoSeguroUniversitario.toLowerCase() == 'si';
 
   // 📄 CONVERTIR A JSON (para futuras funcionalidades)
   Map<String, dynamic> toJson() {
@@ -65,21 +113,29 @@ class CarnetModel {
       'matricula': matricula,
       'nombreCompleto': nombreCompleto,
       'correo': correo,
-      'programa': programa,
+      'edad': edad,
+      'sexo': sexo,
       'categoria': categoria,
+      'programa': programa,
       'tipoSangre': tipoSangre,
-      'emergenciaContacto': emergenciaContacto,
-      'emergenciaTelefono': emergenciaTelefono,
+      'enfermedadCronica': enfermedadCronica,
       'unidadMedica': unidadMedica,
+      'numeroAfiliacion': numeroAfiliacion,
       'usoSeguroUniversitario': usoSeguroUniversitario,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'donante': donante,
+      'emergenciaContacto': emergenciaContacto,
+      'discapacidad': discapacidad,
+      'tipoDiscapacidad': tipoDiscapacidad,
+      'alergias': alergias,
+      'emergenciaTelefono': emergenciaTelefono,
+      'expedienteNotas': expedienteNotas,
+      'expedienteAdjuntos': expedienteAdjuntos,
     };
   }
 
   // 📄 PARA DEBUG
   @override
   String toString() {
-    return 'CarnetModel(id: $id, matricula: $matricula, nombreCompleto: $nombreCompleto, programa: $programa, categoria: $categoria)';
+    return 'CarnetModel(id: $id, matricula: $matricula, nombreCompleto: $nombreCompleto, programa: $programa, categoria: $categoria, edad: $edad, sexo: $sexo)';
   }
 }

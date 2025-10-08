@@ -141,6 +141,16 @@ class CarnetScreen extends StatelessWidget {
                       color: Colors.white70,
                     ),
                   ),
+                  
+                  const SizedBox(height: 4),
+                  
+                  Text(
+                    '${carnet.edad} años • ${carnet.sexo}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -156,7 +166,7 @@ class CarnetScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Información del Estudiante',
+                    'Información Académica',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -165,9 +175,63 @@ class CarnetScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildInfoRow('Programa:', carnet.programa),
                   _buildInfoRow('Categoría:', carnet.categoria),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Información Médica
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Información Médica',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   _buildInfoRow('Tipo de Sangre:', carnet.tipoSangre),
                   _buildInfoRow('Unidad Médica:', carnet.unidadMedica),
-                  _buildInfoRow('Seguro Universitario:', carnet.usoSeguroUniversitario ? 'Sí' : 'No'),
+                  if (carnet.numeroAfiliacion.isNotEmpty)
+                    _buildInfoRow('No. Afiliación:', carnet.numeroAfiliacion),
+                  _buildInfoRow('Seguro Universitario:', carnet.usoSeguroUniversitario),
+                  _buildInfoRow('Donante:', carnet.donante),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Enfermedades Crónicas
+                  _buildMedicalSection(
+                    'Enfermedades Crónicas:',
+                    carnet.enfermedadCronica,
+                    carnet.tieneEnfermedadCronica,
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Alergias
+                  _buildMedicalSection(
+                    'Alergias:',
+                    carnet.alergias,
+                    carnet.tieneAlergias,
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Discapacidad
+                  if (carnet.tieneDiscapacidad) ...[
+                    _buildInfoRow('Discapacidad:', carnet.discapacidad),
+                    if (carnet.tipoDiscapacidad.isNotEmpty)
+                      _buildInfoRow('Tipo:', carnet.tipoDiscapacidad),
+                  ] else ...[
+                    _buildInfoRow('Discapacidad:', 'No'),
+                  ],
                 ],
               ),
             ),
@@ -198,6 +262,45 @@ class CarnetScreen extends StatelessWidget {
           ),
           
           const SizedBox(height: 20),
+          
+          // Notas del Expediente (si existen)
+          if (carnet.expedienteNotas.isNotEmpty) ...[
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Notas del Expediente',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue[200]!),
+                      ),
+                      child: Text(
+                        carnet.expedienteNotas,
+                        style: TextStyle(
+                          color: Colors.blue[800],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
           
           // QR Code
           Card(
@@ -248,6 +351,46 @@ class CarnetScreen extends StatelessWidget {
               value,
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicalSection(String label, String value, bool hasCondition) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: hasCondition ? Colors.red[50] : Colors.green[50],
+        border: Border.all(
+          color: hasCondition ? Colors.red[200]! : Colors.green[200]!,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            hasCondition ? Icons.warning : Icons.check_circle,
+            color: hasCondition ? Colors.red[600] : Colors.green[600],
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: hasCondition ? Colors.red[800] : Colors.green[800],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: hasCondition ? Colors.red[800] : Colors.green[800],
               ),
             ),
           ),
