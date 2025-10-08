@@ -36,13 +36,13 @@ const RESOURCES = {"flutter.js": "4b2350e14c6650ba82871f60906437ea",
 "index_carrusel_backup.html": "3f58b8189deaeaad101a6c859c67879b",
 "fix_login.js": "b8a80b4f7839c79dc2884b09ea645008",
 "api_config.js": "f29432ce71fce2f7107ed5b9b9eb3f69",
-"flutter_bootstrap.js": "b45cfa0c10fe2d11569321a908c6a997",
+"flutter_bootstrap.js": "a84567c0ebbf70d4743924d6f4f7916a",
 "version.json": "319e359c9bc4b44401abedbc3d5cea99",
 "index-flutter-original.html": "3af4b98ce3c13a646890b96317d590fc",
 "carousel_backup_temp/carousel-netflix-component.js": "35ad8f836ba67cf1ff5122fc981d1ed2",
 "carousel_backup_temp/carousel-netflix-styles.css": "fac557b4bcf8139981bd4a284568ca41",
 "carousel_backup_temp/carousel-modal-styles.css": "8f9fedd5ec8fe7953cf7cb22e7115927",
-"main.dart.js": "2752ddd6192ef41a05e926b6f44a0f58"};
+"main.dart.js": "8c7f7bb0248059828dc8f1041791a342"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
