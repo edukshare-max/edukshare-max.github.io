@@ -28,7 +28,6 @@ class CarnetDigitalApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         
         // Rutas de navegación
-        initialRoute: '/login',
         routes: {
           '/login': (context) => const LoginScreen(),
           '/carnet': (context) => const CarnetScreen(),

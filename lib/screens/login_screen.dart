@@ -28,6 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    // Prevenir múltiples submissions
+    if (_isLoading) return;
 
     setState(() {
       _isLoading = true;
@@ -43,8 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success && mounted) {
         Navigator.of(context).pushReplacementNamed('/carnet');
       } else if (mounted) {
-        _showErrorDialog('Error de autenticación', 
-            'Verifique sus credenciales e intente nuevamente.');
+        final error = sessionProvider.error ?? 'Error de autenticación';
+        _showErrorDialog('Error de autenticación', error);
       }
     } catch (e) {
       if (mounted) {

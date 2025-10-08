@@ -42,8 +42,8 @@ class SessionProvider extends ChangeNotifier {
     try {
       final result = await ApiService.login(correo, matricula);
       
-      if (result != null && result['access_token'] != null) {
-        _token = result['access_token'];
+      if (result != null && result['success'] == true && result['token'] != null) {
+        _token = result['token'];  // Corregido: 'token' en lugar de 'access_token'
         _isLoggedIn = true;
         
         // Cargar datos del carnet
