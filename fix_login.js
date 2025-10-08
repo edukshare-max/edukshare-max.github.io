@@ -56,6 +56,7 @@
                 try {
                     let bodyData = null;
                     let isStringBody = false;
+                    let isUint8ArrayBody = false;
                     
                     // Intentar parsear el body independientemente del Content-Type
                     if (typeof options.body === 'string') {
@@ -65,6 +66,19 @@
                             console.log('✅ Body parseado como JSON:', bodyData);
                         } catch (e) {
                             console.log('⚠️ Body string no es JSON válido');
+                            return originalFetch.apply(this, arguments);
+                        }
+                    } else if (options.body instanceof Uint8Array) {
+                        try {
+                            console.log('🔧 Body es Uint8Array, decodificando...');
+                            const decoder = new TextDecoder('utf-8');
+                            const jsonString = decoder.decode(options.body);
+                            console.log('📄 JSON String decodificado:', jsonString);
+                            bodyData = JSON.parse(jsonString);
+                            isUint8ArrayBody = true;
+                            console.log('✅ Uint8Array parseado como JSON:', bodyData);
+                        } catch (e) {
+                            console.log('⚠️ Uint8Array no contiene JSON válido:', e.message);
                             return originalFetch.apply(this, arguments);
                         }
                     } else if (options.body && typeof options.body === 'object') {
@@ -81,6 +95,10 @@
                         // Reconstruir body según el tipo original
                         if (isStringBody) {
                             options.body = JSON.stringify(bodyData);
+                        } else if (isUint8ArrayBody) {
+                            const encoder = new TextEncoder();
+                            options.body = encoder.encode(JSON.stringify(bodyData));
+                            console.log('🔄 Payload re-codificado como Uint8Array');
                         } else {
                             options.body = bodyData;
                         }
