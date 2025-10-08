@@ -49,27 +49,48 @@
         window.fetch = function(url, options) {
             // Solo interceptar /auth/login con body presente
             if (url && url.includes('/auth/login') && options && options.body) {
+                console.log('🔧 INTERCEPTANDO LOGIN - URL:', url);
+                console.log('� PAYLOAD RECIBIDO:', options.body);
+                console.log('📋 HEADERS:', options.headers);
+                
                 try {
-                    // 🛡️ GUARDIA: Solo procesar si es string JSON
-                    if (typeof options.body === 'string' && 
-                        options.headers && 
-                        (options.headers['Content-Type'] || '').includes('application/json')) {
-                        
-                        const body = JSON.parse(options.body);
-                        
-                        // Si contiene 'email', cambiarlo por 'correo'
-                        if (body.email && !body.correo) {
-                            console.log('🔧 Corrigiendo payload de login: email -> correo');
-                            body.correo = body.email;
-                            delete body.email;
-                            options.body = JSON.stringify(body);
-                            console.log('✅ Payload corregido:', body);
+                    let bodyData = null;
+                    let isStringBody = false;
+                    
+                    // Intentar parsear el body independientemente del Content-Type
+                    if (typeof options.body === 'string') {
+                        try {
+                            bodyData = JSON.parse(options.body);
+                            isStringBody = true;
+                            console.log('✅ Body parseado como JSON:', bodyData);
+                        } catch (e) {
+                            console.log('⚠️ Body string no es JSON válido');
+                            return originalFetch.apply(this, arguments);
                         }
+                    } else if (options.body && typeof options.body === 'object') {
+                        bodyData = options.body;
+                        console.log('✅ Body es object directo:', bodyData);
+                    }
+                    
+                    // Aplicar fix email -> correo
+                    if (bodyData && bodyData.email && !bodyData.correo) {
+                        console.log('🔧 APLICANDO FIX: email -> correo');
+                        bodyData.correo = bodyData.email;
+                        delete bodyData.email;
+                        
+                        // Reconstruir body según el tipo original
+                        if (isStringBody) {
+                            options.body = JSON.stringify(bodyData);
+                        } else {
+                            options.body = bodyData;
+                        }
+                        
+                        console.log('✅ PAYLOAD CORREGIDO FINAL:', options.body);
                     } else {
-                        console.log('🛡️ Body no es string JSON, no se toca:', typeof options.body);
+                        console.log('🛡️ No necesita corrección o ya tiene correo');
                     }
                 } catch (e) {
-                    console.log('⚠️ No se pudo corregir payload (protegido):', e.message);
+                    console.log('⚠️ Error al aplicar fix:', e.message);
                     // 🛡️ NO modificar options.body si hay error
                 }
             }
