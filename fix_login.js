@@ -50,8 +50,16 @@
             // Solo interceptar /auth/login con body presente
             if (url && url.includes('/auth/login') && options && options.body) {
                 console.log('🔧 INTERCEPTANDO LOGIN - URL:', url);
-                console.log('� PAYLOAD RECIBIDO:', options.body);
+                console.log('📤 PAYLOAD RECIBIDO:', options.body);
                 console.log('📋 HEADERS:', options.headers);
+                
+                // 🔍 DIAGNÓSTICO DETALLADO DE TIPOS
+                console.log('🔍 DIAGNÓSTICO TIPOS:');
+                console.log('- typeof body:', typeof options.body);
+                console.log('- instanceof Uint8Array:', options.body instanceof Uint8Array);
+                console.log('- instanceof Object:', options.body instanceof Object);
+                console.log('- Array.isArray:', Array.isArray(options.body));
+                console.log('- constructor name:', options.body?.constructor?.name);
                 
                 try {
                     let bodyData = null;
