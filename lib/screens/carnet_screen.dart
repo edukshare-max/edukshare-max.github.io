@@ -40,6 +40,8 @@ class CarnetScreen extends StatelessWidget {
       ),
       body: Consumer<SessionProvider>(
         builder: (context, session, child) {
+          print('🖥️ CarnetScreen builder - isLoading: ${session.isLoading}, carnet: ${session.carnet?.nombreCompleto ?? "null"}');
+          
           if (session.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }

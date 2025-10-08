@@ -45,6 +45,7 @@ class SessionProvider extends ChangeNotifier {
       if (result != null && result['success'] == true && result['token'] != null) {
         _token = result['token'];  // Corregido: 'token' en lugar de 'access_token'
         _isLoggedIn = true;
+        notifyListeners(); // ✅ Notificar que el login fue exitoso
         
         // Cargar datos del carnet
         await _loadCarnetData();
@@ -52,7 +53,7 @@ class SessionProvider extends ChangeNotifier {
         // Cargar citas
         await _loadCitasData();
         
-        _setLoading(false);
+        _setLoading(false); // ✅ Esto ya llama notifyListeners()
         return true;
       } else {
         _setError('Credenciales inválidas');
@@ -76,6 +77,7 @@ class SessionProvider extends ChangeNotifier {
       if (carnet != null) {
         _carnet = carnet;
         print('✅ Carnet cargado: ${carnet.nombreCompleto}');
+        print('🔄 Llamando notifyListeners() para carnet...');
         notifyListeners(); // ¡IMPORTANTE! Notificar cambios a la UI
       } else {
         print('❌ No se pudo cargar el carnet');
@@ -106,6 +108,7 @@ class SessionProvider extends ChangeNotifier {
         _citas = [];
       }
       
+      print('🔄 Llamando notifyListeners() para citas...');
       notifyListeners();
     } catch (e) {
       print('❌ ERROR CARGANDO CITAS: $e');

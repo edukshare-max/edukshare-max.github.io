@@ -32,14 +32,17 @@ class _CitasScreenState extends State<CitasScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<SessionProvider>().loadCitas();
+            onPressed: () async {
+              print('🔄 Refresh manual de citas...');
+              await context.read<SessionProvider>().loadCitas();
             },
           ),
         ],
       ),
       body: Consumer<SessionProvider>(
         builder: (context, session, child) {
+          print('🖥️ CitasScreen builder - isLoading: ${session.isLoading}, citas: ${session.citas.length}');
+          
           if (session.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -68,7 +71,10 @@ class _CitasScreenState extends State<CitasScreen> {
           }
 
           return RefreshIndicator(
-            onRefresh: () => context.read<SessionProvider>().loadCitas(),
+            onRefresh: () async {
+              print('🔄 RefreshIndicator de citas...');
+              return await context.read<SessionProvider>().loadCitas();
+            },
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: session.citas.length,
