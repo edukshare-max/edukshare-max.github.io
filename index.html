@@ -1,0 +1,257 @@
+<!DOCTYPE html><!DOCTYPE html>
+
+<html lang="es"><html lang="es">
+
+<head><head>
+
+    <meta charset="UTF-8">  <!--
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    If you are serving your web app in a path other than the root, change the
+
+    <title>🎓 Carnet Digital UAGro - Configurando...</title>    href value below to reflect the base path you are serving from.
+
+    <style>
+
+        body {    The path provided below has to start and end with a slash "/" in order for
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;    it to work correctly.
+
+            background: linear-gradient(135deg, #1976D2, #FFA726);
+
+            margin: 0;    For more details:
+
+            padding: 0;    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+            display: flex;
+
+            justify-content: center;    This is a placeholder for base href that will be replaced by the value of
+
+            align-items: center;    the `--base-href` argument provided to `flutter build`.
+
+            min-height: 100vh;  -->
+
+            color: white;  <base href="/">
+
+        }
+
+        .container {  <meta charset="UTF-8">
+
+            text-align: center;  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+
+            background: rgba(255, 255, 255, 0.1);  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+            backdrop-filter: blur(10px);  
+
+            padding: 3rem;  <!-- Cache bust para forzar recarga del diseño UAGro -->
+
+            border-radius: 20px;  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);  <meta http-equiv="Pragma" content="no-cache">
+
+            max-width: 600px;  <meta http-equiv="Expires" content="0">
+
+        }  <meta name="build-version" content="v2025.10.08.10.50-uagro-design-fix">
+
+        .logo {  
+
+            font-size: 4rem;  <!-- Primary Meta Tags -->
+
+            margin-bottom: 1rem;  <title>Carnet Digital CRES - Universidad Autónoma de Guerrero</title>
+
+        }  <meta name="title" content="Carnet Digital CRES - Universidad Autónoma de Guerrero">
+
+        h1 {  <meta name="description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro. Accede a tu identificación estudiantil digital oficial.">
+
+            font-size: 2.5rem;  <meta name="keywords" content="carnet digital, UAGro, CRES, Universidad Autónoma de Guerrero, estudiante, identificación, Llano Largo">
+
+            margin-bottom: 1rem;  <meta name="author" content="Universidad Autónoma de Guerrero - CRES Llano Largo">
+
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);  
+
+        }  <!-- Open Graph / Facebook -->
+
+        .subtitle {  <meta property="og:type" content="website">
+
+            font-size: 1.2rem;  <meta property="og:url" content="https://app.carnetdigital.space/">
+
+            opacity: 0.9;  <meta property="og:title" content="Carnet Digital CRES - Universidad Autónoma de Guerrero">
+
+            margin-bottom: 2rem;  <meta property="og:description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro. Accede a tu identificación estudiantil digital oficial.">
+
+        }  <meta property="og:image" content="https://app.carnetdigital.space/icons/carnet-preview.png?v=2">
+
+        .loading {  <meta property="og:image:width" content="1200">
+
+            display: flex;  <meta property="og:image:height" content="630">
+
+            justify-content: center;  <meta property="og:image:type" content="image/png">
+
+            align-items: center;  <meta property="og:site_name" content="Carnet Digital CRES UAGro">
+
+            gap: 10px;  <meta property="og:locale" content="es_MX">
+
+            margin: 2rem 0;  
+
+        }  <!-- Twitter -->
+
+        .dot {  <meta property="twitter:card" content="summary_large_image">
+
+            width: 12px;  <meta property="twitter:url" content="https://app.carnetdigital.space/">
+
+            height: 12px;  <meta property="twitter:title" content="Carnet Digital CRES - Universidad Autónoma de Guerrero">
+
+            background: white;  <meta property="twitter:description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro. Accede a tu identificación estudiantil digital oficial.">
+
+            border-radius: 50%;  <meta property="twitter:image" content="https://app.carnetdigital.space/icons/carnet-preview.png?v=2">
+
+            animation: loading 1.4s infinite ease-in-out both;  <meta property="twitter:image:alt" content="Logo Carnet Digital CRES UAGro">
+
+        }  
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }  <!-- WhatsApp specific -->
+
+        .dot:nth-child(2) { animation-delay: -0.16s; }  <meta property="wa:image" content="https://app.carnetdigital.space/icons/carnet-preview.png?v=2">
+
+        .dot:nth-child(3) { animation-delay: 0; }
+
+          <!-- iOS meta tags & icons -->
+
+        @keyframes loading {  <meta name="mobile-web-app-capable" content="yes">
+
+            0%, 80%, 100% {   <meta name="apple-mobile-web-app-capable" content="yes">
+
+                transform: scale(0);  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+                opacity: 0.5;  <meta name="apple-mobile-web-app-title" content="Carnet Digital CRES">
+
+            }   <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+            40% { 
+
+                transform: scale(1);  <!-- Favicon -->
+
+                opacity: 1;  <link rel="icon" type="image/png" href="favicon.png"/>
+
+            }  <link rel="shortcut icon" type="image/png" href="favicon.png"/>
+
+        }
+
+          <!-- Additional PWA meta tags -->
+
+        .status {  <meta name="theme-color" content="#0175C2">
+
+            background: rgba(255, 255, 255, 0.2);  <meta name="msapplication-TileColor" content="#0175C2">
+
+            padding: 1.5rem;  <meta name="msapplication-navbutton-color" content="#0175C2">
+
+            border-radius: 10px;  
+
+            margin-top: 2rem;  <link rel="manifest" href="manifest.json">
+
+        }</head>
+
+        .status h3 {<body>
+
+            margin-top: 0;  <!-- 🚀 CACHE BUST DEFINITIVO v2025.10.08.23.25 - ELIMINACIÓN COMPLETA CARRUSEL -->
+
+            color: #FFE082;  <script>
+
+        }    console.log('🚀 CACHE BUST DEFINITIVO v2025.10.08.23.25 - Sin carrusel');
+
+        .status ul {    console.log('✅ VERIFICACIÓN: Esta es la nueva versión sin carrusel');
+
+            text-align: left;    console.log('❌ Si ves mensajes de carrusel, es cache viejo que debe eliminarse');
+
+            list-style: none;    
+
+            padding: 0;    // Prevenir carga de archivos de carrusel si existen en cache
+
+        }    const blockedFiles = ['carousel-netflix-component.js', 'carousel-netflix-styles.css', 'carousel-modal-styles.css'];
+
+        .status li {    blockedFiles.forEach(file => {
+
+            margin: 0.5rem 0;      const existingScript = document.querySelector(`script[src*="${file}"]`);
+
+            padding-left: 1.5rem;      const existingLink = document.querySelector(`link[href*="${file}"]`);
+
+            position: relative;      if (existingScript) existingScript.remove();
+
+        }      if (existingLink) existingLink.remove();
+
+        .status li:before {    });
+
+            content: "⚙️";  </script>
+
+            position: absolute;  
+
+            left: 0;  <!-- Fix para problemas de login y service worker -->
+
+        }  <script src="fix_login.js?v=20251008_1050"></script>
+
+        .refresh {  
+
+            background: rgba(255, 255, 255, 0.2);  <!-- Configuración de API para campos correctos del backend -->
+
+            border: 2px solid white;  <script src="api_config.js?v=20251008_1050"></script>
+
+            color: white;  
+
+            padding: 12px 24px;  <script src="flutter_bootstrap.js?v=20251008_1050" async></script>
+
+            border-radius: 25px;</body>
+
+            font-size: 1rem;</html>
+
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        .refresh:hover {
+            background: white;
+            color: #1976D2;
+            transform: translateY(-2px);
+        }
+    </style>
+    <script>
+        // Auto-refresh every 30 seconds to check deployment status
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+        
+        // Manual refresh function
+        function refreshPage() {
+            window.location.reload();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎓</div>
+        <h1>Carnet Digital UAGro</h1>
+        <div class="subtitle">Configurando GitHub Pages...</div>
+        
+        <div class="loading">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <div class="status">
+            <h3>🚀 Estado del Deployment</h3>
+            <ul>
+                <li>GitHub Actions workflow configurado</li>
+                <li>Flutter Web build completado</li>
+                <li>Configurando GitHub Pages...</li>
+                <li>Próximo: Aplicación funcional</li>
+            </ul>
+        </div>
+        
+        <button class="refresh" onclick="refreshPage()">🔄 Actualizar Estado</button>
+        
+        <div style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+            <p><strong>Universidad Autónoma de Guerrero</strong></p>
+            <p>Sistema de Identificación Digital Estudiantil</p>
+        </div>
+    </div>
+</body>
+</html>
