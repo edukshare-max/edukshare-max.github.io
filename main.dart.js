@@ -7157,7 +7157,7 @@ _.y=j
 _.z=k},
 i5:function i5(a,b){var _=this
 _.b=_.a=!1
-_.e=_.c=null
+_.e=_.d=_.c=null
 _.f=a
 _.N$=0
 _.O$=b
@@ -9572,14 +9572,13 @@ W0:function W0(a){this.a=a},
 aE9(){return new A.wZ(new A.a2X(),A.t(t.K,t.Qu))},
 acR:function acR(a,b){this.a=a
 this.b=b},
-xI:function xI(a,b,c,d,e,f,g){var _=this
+xI:function xI(a,b,c,d,e,f){var _=this
 _.e=a
 _.f=b
-_.r=c
-_.cx=d
-_.db=e
-_.R8=f
-_.a=g},
+_.cx=c
+_.db=d
+_.R8=e
+_.a=f},
 a2X:function a2X(){},
 a5o:function a5o(){},
 Cr:function Cr(){this.d=$
@@ -38667,7 +38666,7 @@ A.Gu.prototype={
 L(a){var s=null,r=A.c([new A.vu(new A.tI(new A.X9(),s,s,A.aLV(),A.aKW(),t.Z7),s,s,s,s,t.Sl)],t.Ds),q=A.f7(12),p=A.aD0(s,s,B.bc,s,s,s,3,s,s,B.k,s,s,B.DR,s,new A.cv(A.f7(8),B.q),s,s,s,s,s),o=A.f7(8),n=A.f7(8),m=A.f7(8)
 m=A.tj(B.zI,s,new A.nc(s,B.k,s,s,4,s,new A.cv(q,B.q)),B.BP,new A.qE(p),A.ata(new A.eT(4,o,B.lE),s,s,new A.eT(4,n,B.lE),new A.eT(4,A.f7(8),B.A5),B.k,!0,new A.eT(4,m,B.A4)),B.ix,!0)
 n=A.ae(["/login",new A.Xa(),"/carnet",new A.Xb(),"/citas",new A.Xc()],t.N,t.Ab)
-return A.aEq(new A.xI(A.aot(new A.Xd(),t.tt),n,"/login","Carnet Digital UAGro",m,!1,s),r)}}
+return A.aEq(new A.xI(A.aot(new A.Xd(),t.tt),n,"Carnet Digital UAGro",m,!1,s),r)}}
 A.X9.prototype={
 $1(a){return new A.i5(A.c([],t.tI),$.ao())},
 $S:232}
@@ -38696,14 +38695,15 @@ aj5(a,b){var s=0,r=A.T(t.y),q,p=2,o=[],n=this,m,l,k,j
 var $async$pF=A.P(function(c,d){if(c===1){o.push(d)
 s=p}while(true)switch(s){case 0:n.b=!0
 n.ar()
+n.d=null
 n.ar()
 p=4
 s=7
 return A.V(A.W7(a,b),$async$pF)
 case 7:m=d
-s=m!=null&&m.h(0,"access_token")!=null?8:10
+s=m!=null&&J.d(m.h(0,"success"),!0)&&m.h(0,"token")!=null?8:10
 break
-case 8:n.c=m.h(0,"access_token")
+case 8:n.c=m.h(0,"token")
 n.a=!0
 s=11
 return A.V(n.vE(),$async$pF)
@@ -38716,7 +38716,8 @@ s=1
 break
 s=9
 break
-case 10:n.ar()
+case 10:n.d="Credenciales inv\xe1lidas"
+n.ar()
 n.b=!1
 n.ar()
 q=!1
@@ -38728,7 +38729,7 @@ break
 case 4:p=3
 j=o.pop()
 l=A.ai(j)
-A.m(l)
+n.d="Error de conexi\xf3n: "+A.m(l)
 n.ar()
 n.b=!1
 n.ar()
@@ -38819,6 +38820,7 @@ $0(){var s=this.a,r=A.yt(s,!1,t.tt)
 r.a=!1
 r.e=r.c=null
 r.f=A.c([],t.tI)
+r.d=null
 r.ar()
 r=t.X
 A.iV(s,!1).TQ("/login",r,r)},
@@ -38924,29 +38926,31 @@ s=this.f
 s.O$=r
 s.N$=0
 this.aH()},
-vt(){var s=0,r=A.T(t.H),q,p=2,o=[],n=[],m=this,l,k,j,i,h,g
+vt(){var s=0,r=A.T(t.H),q,p=2,o=[],n=[],m=this,l,k,j,i,h,g,f,e
 var $async$vt=A.P(function(a,b){if(a===1){o.push(b)
-s=p}while(true)switch(s){case 0:h=m.d.gK()
-h.e=!0
-h.KN()
-if(!h.lD()){s=1
+s=p}while(true)switch(s){case 0:f=m.d.gK()
+f.e=!0
+f.KN()
+if(!f.lD()){s=1
+break}if(m.r){s=1
 break}m.aq(new A.ahV(m))
 p=4
-h=m.c
-h.toString
-l=A.yt(h,!1,t.tt)
+f=m.c
+f.toString
+l=A.yt(f,!1,t.tt)
 s=7
 return A.V(l.pF(B.c.k7(m.e.a.a),B.c.k7(m.f.a.a)),$async$vt)
 case 7:k=b
-if(k&&m.c!=null){h=m.c
-h.toString
-j=t.X
-A.iV(h,!1).TQ("/carnet",j,j)}else if(m.c!=null)m.O0("Error de autenticaci\xf3n","Verifique sus credenciales e intente nuevamente.")
-n.push(6)
+if(k&&m.c!=null){f=m.c
+f.toString
+i=t.X
+A.iV(f,!1).TQ("/carnet",i,i)}else if(m.c!=null){h=l.d
+j=h==null?"Error de autenticaci\xf3n":h
+m.O0("Error de autenticaci\xf3n",j)}n.push(6)
 s=5
 break
 case 4:p=3
-g=o.pop()
+e=o.pop()
 if(m.c!=null)m.O0("Error de conexi\xf3n","No se pudo conectar con el servidor. Intente m\xe1s tarde.")
 n.push(6)
 s=5
@@ -43467,17 +43471,16 @@ j.a.toString
 s=A.Yn(k,l,i,i,m)
 k=A.arJ(new A.zh(s,i),B.a6,o,B.U)
 return k},
-a0y(a){var s,r,q,p,o=this,n=null,m=o.a,l=m.db
-l=l.dx
-s=l
+a0y(a){var s,r,q,p=this,o=null,n=p.a,m=n.db
+m=m.dx
+s=m
 if(s==null)s=B.h3
-l=m.e
-r=m.f
-q=m.r
-m=m.cx
-p=o.ga7h()
-o.a.toString
-return new A.B0(n,n,n,new A.ai0(),n,n,n,n,n,l,r,n,n,q,B.J5,o.ga7p(),m,n,B.T7,s,n,p,n,n,B.nC,!1,!1,n,n,n,new A.nR(o,t.bT))},
+m=n.e
+r=n.f
+n=n.cx
+q=p.ga7h()
+p.a.toString
+return new A.B0(o,o,o,new A.ai0(),o,o,o,o,o,m,r,o,o,o,B.J5,p.ga7p(),n,o,B.T7,s,o,q,o,o,B.nC,!1,!1,o,o,o,new A.nR(p,t.bT))},
 L(a){var s,r=null,q=A.nH(!1,!1,this.a0y(a),r,r,r,r,!0,r,r,r,new A.ai1(),r,r)
 this.a.toString
 s=this.d
@@ -63334,13 +63337,12 @@ b.sW5(!0)}}
 A.B0.prototype={
 an(){return new A.Ex()}}
 A.Ex.prototype={
-ga6R(){var s,r
-$.a1.toString
-s=$.aF()
+ga6R(){$.a1.toString
+var s=$.aF()
 if(s.gEw()!=="/"){$.a1.toString
-s=s.gEw()}else{r=this.a.ay
-if(r==null){$.a1.toString
-s=s.gEw()}else s=r}return s},
+s=s.gEw()}else{this.a.toString
+$.a1.toString
+s=s.gEw()}return s},
 a1O(a){switch(this.d){case null:case void 0:case B.cm:return!0
 case B.eX:case B.c8:case B.eY:case B.ie:A.apH(a.a)
 return!0}},
