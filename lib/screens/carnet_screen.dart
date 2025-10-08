@@ -163,10 +163,35 @@ class CarnetScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoRow('Carrera:', carnet.carrera),
-                  _buildInfoRow('Semestre:', carnet.semestre.toString()),
+                  _buildInfoRow('Programa:', carnet.programa),
+                  _buildInfoRow('Categoría:', carnet.categoria),
                   _buildInfoRow('Tipo de Sangre:', carnet.tipoSangre),
-                  _buildInfoRow('Estado:', carnet.estado),
+                  _buildInfoRow('Unidad Médica:', carnet.unidadMedica),
+                  _buildInfoRow('Seguro Universitario:', carnet.usoSeguroUniversitario ? 'Sí' : 'No'),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Información de Contacto de Emergencia
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Contacto de Emergencia',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInfoRow('Contacto:', carnet.emergenciaContacto),
+                  _buildInfoRow('Teléfono:', carnet.emergenciaTelefono),
                 ],
               ),
             ),

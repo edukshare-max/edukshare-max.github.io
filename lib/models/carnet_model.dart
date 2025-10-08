@@ -1,75 +1,85 @@
-// 🎓 MODELO DE DATOS - CARNET ESTUDIANTE UAGRO
-// Basado en respuestas reales del backend SASU
-
+// 🎓 MODELO DE DATOS - CARNET ESTUDIANTE UAGRO - BACKEND SASU REAL
 class CarnetModel {
   final String id;
   final String matricula;
   final String nombreCompleto;
-  final String email;
-  final String correo; // Campo adicional para compatibilidad
-  final String carrera;
-  final int semestre;  // Cambiar a int
-  final String estado; // Agregar estado
+  final String correo;
+  final String programa;
+  final String categoria;
   final String tipoSangre;
-  final String curp;
-  final String telefono;
-  final String contactoEmergencia;
-  final String seguroMedico;
-  final String? fotoUrl;
+  final String emergenciaContacto;
+  final String emergenciaTelefono;
+  final String unidadMedica;
+  final bool usoSeguroUniversitario;
+  final String createdAt;
+  final String updatedAt;
 
   CarnetModel({
     required this.id,
     required this.matricula,
     required this.nombreCompleto,
-    required this.email,
     required this.correo,
-    required this.carrera,
-    required this.semestre,
-    required this.estado,
+    required this.programa,
+    required this.categoria,
     required this.tipoSangre,
-    required this.curp,
-    required this.telefono,
-    required this.contactoEmergencia,
-    required this.seguroMedico,
-    this.fotoUrl,
+    required this.emergenciaContacto,
+    required this.emergenciaTelefono,
+    required this.unidadMedica,
+    required this.usoSeguroUniversitario,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
+  // 🔄 PARSE DESDE JSON BACKEND SASU REAL
   factory CarnetModel.fromJson(Map<String, dynamic> json) {
     print('🔍 PARSING CARNET DATA: $json');
     return CarnetModel(
-      id: json['id'] ?? json['_id'] ?? 'carnet:${json['matricula']}',
+      id: json['id'] ?? '',
       matricula: json['matricula'] ?? '',
       nombreCompleto: json['nombreCompleto'] ?? '',
-      email: json['correo'] ?? '',
       correo: json['correo'] ?? '',
-      carrera: json['programa'] ?? json['carrera'] ?? 'No especificada',
-      semestre: 1, // Por defecto, no viene en datos SASU
-      estado: json['categoria'] ?? 'Activo',
+      programa: json['programa'] ?? '',
+      categoria: json['categoria'] ?? '',
       tipoSangre: json['tipoSangre'] ?? '',
-      curp: '', // No disponible en SASU
-      telefono: json['emergenciaTelefono'] ?? '',
-      contactoEmergencia: json['emergenciaContacto'] ?? '',
-      seguroMedico: json['unidadMedica'] ?? json['usoSeguroUniversitario'] ?? '',
-      fotoUrl: null, // No disponible en SASU
+      emergenciaContacto: json['emergenciaContacto'] ?? '',
+      emergenciaTelefono: json['emergenciaTelefono'] ?? '',
+      unidadMedica: json['unidadMedica'] ?? '',
+      usoSeguroUniversitario: json['usoSeguroUniversitario'] ?? false,
+      createdAt: json['createdAt'] ?? '',
+      updatedAt: json['updatedAt'] ?? '',
     );
   }
 
+  // 📄 GETTERS PARA COMPATIBILIDAD CON UI EXISTENTE
+  String get carrera => programa;
+  String get estado => categoria;
+  String get telefono => emergenciaTelefono;
+  String get contactoEmergencia => emergenciaContacto;
+  String get seguroMedico => usoSeguroUniversitario ? unidadMedica : 'Sin seguro universitario';
+  String get email => correo;
+
+  // 📄 CONVERTIR A JSON (para futuras funcionalidades)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'matricula': matricula,
       'nombreCompleto': nombreCompleto,
       'correo': correo,
-      'email': email,
-      'carrera': carrera,
-      'semestre': semestre,
-      'estado': estado,
-      'tipo_sangre': tipoSangre,
-      'curp': curp,
-      'telefono': telefono,
-      'contacto_emergencia': contactoEmergencia,
-      'seguro_medico': seguroMedico,
-      'foto_url': fotoUrl,
+      'programa': programa,
+      'categoria': categoria,
+      'tipoSangre': tipoSangre,
+      'emergenciaContacto': emergenciaContacto,
+      'emergenciaTelefono': emergenciaTelefono,
+      'unidadMedica': unidadMedica,
+      'usoSeguroUniversitario': usoSeguroUniversitario,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
     };
+  }
+
+  // 📄 PARA DEBUG
+  @override
+  String toString() {
+    return 'CarnetModel(id: $id, matricula: $matricula, nombreCompleto: $nombreCompleto, programa: $programa, categoria: $categoria)';
   }
 }
