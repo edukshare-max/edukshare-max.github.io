@@ -35,7 +35,7 @@ const RESOURCES = {"flutter.js": "4b2350e14c6650ba82871f60906437ea",
 "carousel-modal-styles.css": "8f9fedd5ec8fe7953cf7cb22e7115927",
 "fix_login.js": "6c88c66e979bb5728fd476746799c14c",
 "api_config.js": "f29432ce71fce2f7107ed5b9b9eb3f69",
-"flutter_bootstrap.js": "286ac3359baa46faf8a0947daebbd1bd",
+"flutter_bootstrap.js": "2c08ff823dbab1ebf47a8e1d690c7e4f",
 "version.json": "319e359c9bc4b44401abedbc3d5cea99",
 "index-flutter-original.html": "3af4b98ce3c13a646890b96317d590fc",
 "main.dart.js": "71b6d3698a6f79621135b76e1e66cc31"};
