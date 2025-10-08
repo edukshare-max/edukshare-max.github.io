@@ -35,21 +35,22 @@ class CarnetModel {
   });
 
   factory CarnetModel.fromJson(Map<String, dynamic> json) {
+    print('🔍 PARSING CARNET DATA: $json');
     return CarnetModel(
-      id: json['_id'] ?? json['id'] ?? '',
+      id: json['id'] ?? json['_id'] ?? 'carnet:${json['matricula']}',
       matricula: json['matricula'] ?? '',
-      nombreCompleto: json['nombreCompleto'] ?? json['nombre_completo'] ?? '',
-      email: json['correo'] ?? json['email'] ?? '',
-      correo: json['correo'] ?? json['email'] ?? '',
-      carrera: json['carrera'] ?? '',
-      semestre: int.tryParse(json['semestre']?.toString() ?? '1') ?? 1,
-      estado: json['estado'] ?? 'Activo',
-      tipoSangre: json['tipo_sangre'] ?? json['tipoSangre'] ?? '',
-      curp: json['curp'] ?? '',
-      telefono: json['telefono'] ?? '',
-      contactoEmergencia: json['contacto_emergencia'] ?? json['contactoEmergencia'] ?? '',
-      seguroMedico: json['seguro_medico'] ?? json['seguroMedico'] ?? '',
-      fotoUrl: json['foto_url'] ?? json['fotoUrl'],
+      nombreCompleto: json['nombreCompleto'] ?? '',
+      email: json['correo'] ?? '',
+      correo: json['correo'] ?? '',
+      carrera: json['programa'] ?? json['carrera'] ?? 'No especificada',
+      semestre: 1, // Por defecto, no viene en datos SASU
+      estado: json['categoria'] ?? 'Activo',
+      tipoSangre: json['tipoSangre'] ?? '',
+      curp: '', // No disponible en SASU
+      telefono: json['emergenciaTelefono'] ?? '',
+      contactoEmergencia: json['emergenciaContacto'] ?? '',
+      seguroMedico: json['unidadMedica'] ?? json['usoSeguroUniversitario'] ?? '',
+      fotoUrl: null, // No disponible en SASU
     );
   }
 
