@@ -162,15 +162,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _matriculaController,
                         decoration: const InputDecoration(
                           labelText: 'Matrícula',
-                          hintText: '123456789',
+                          hintText: '123456',
                           prefixIcon: Icon(Icons.badge),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Ingrese su matrícula';
                           }
-                          if (value.length < 6) {
-                            return 'La matrícula debe tener al menos 6 dígitos';
+                          // Permitir matrículas de cualquier longitud (3+ dígitos)
+                          if (value.trim().length < 3) {
+                            return 'La matrícula debe tener al menos 3 caracteres';
                           }
                           return null;
                         },
