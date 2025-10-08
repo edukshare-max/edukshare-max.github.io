@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary Meta Tags -->
+  <title>Carnet Digital CRES - Universidad Autónoma de Guerrero</title>
+  <meta name="title" content="Carnet Digital CRES - Universidad Autónoma de Guerrero">
+  <meta name="description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro. Accede a tu identificación estudiantil digital oficial.">
+  <meta name="keywords" content="carnet digital, UAGro, CRES, Universidad Autónoma de Guerrero, estudiante, identificación, Llano Largo">
+  <meta name="author" content="Universidad Autónoma de Guerrero - CRES Llano Largo">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://app.carnetdigital.space/">
+  <meta property="og:title" content="Carnet Digital CRES - Universidad Autónoma de Guerrero">
+  <meta property="og:description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro. Accede a tu identificación estudiantil digital oficial.">
+  <meta property="og:image" content="https://app.carnetdigital.space/icons/carnet-preview.png?v=2">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:site_name" content="Carnet Digital CRES UAGro">
+  <meta property="og:locale" content="es_MX">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://app.carnetdigital.space/">
+  <meta property="twitter:title" content="Carnet Digital CRES - Universidad Autónoma de Guerrero">
+  <meta property="twitter:description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro. Accede a tu identificación estudiantil digital oficial.">
+  <meta property="twitter:image" content="https://app.carnetdigital.space/icons/carnet-preview.png?v=2">
+  <meta property="twitter:image:alt" content="Logo Carnet Digital CRES UAGro">
+
+  <!-- WhatsApp specific -->
+  <meta property="wa:image" content="https://app.carnetdigital.space/icons/carnet-preview.png?v=2">
+  
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Carnet Digital CRES">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="shortcut icon" type="image/png" href="favicon.png"/>
+
+  <!-- Additional PWA meta tags -->
+  <meta name="theme-color" content="#0175C2">
+  <meta name="msapplication-TileColor" content="#0175C2">
+  <meta name="msapplication-navbutton-color" content="#0175C2">
+
+  <link rel="manifest" href="manifest.json">
+
+  <!-- 🎬 CARRUSEL NETFLIX STYLES - Integración para Promociones de Salud -->
+  <link rel="stylesheet" href="carousel-netflix-styles.css">
+  <link rel="stylesheet" href="carousel-modal-styles.css">
+
+  <style>
+    /* Asegurar que el carrusel se renderize correctamente después de Flutter */
+    #flutter-app-container {
+      min-height: 100vh;
+    }
+    
+    /* Contenedor para el carrusel que se añadirá dinámicamente */
+    #promociones-netflix-container {
+      display: none; /* Oculto hasta que se autentique el usuario */
+      margin-top: 0;
+      padding: 0;
+      background: #f8fafc;
+    }
+    
+    /* Asegurar que el carrusel aparezca después del contenido Flutter */
+    .promociones-carousel-section {
+      margin-top: 0 !important;
+      padding-top: 32px !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🚀 INLINE CACHE BUSTER - Solución inmediata -->
+  <script>
+    console.log('🚀 INLINE CACHE BUSTER v2025.10.08.21.00 - ACTIVADO');
+    
+    // Detectar parámetros de bypass
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('cache_bust') || urlParams.get('force_refresh') || urlParams.get('bypass')) {
+      console.log('🔄 BYPASS MODE DETECTADO - Limpiando caches...');
+      
+      // Limpiar todo
+      if (typeof(Storage) !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log('✅ Storage limpiado');
+      }
+      
+      // Service workers
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+          console.log('✅ Service Workers limpiados');
+        });
+      }
+      
+      // Browser caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
+          console.log('✅ Browser caches limpiados');
+        });
+      }
+    }
+    
+    // Timestamp único para recursos
+    window.cacheBusterActive = true;
+    window.cacheBusterTimestamp = '20251008210000';
+    console.log('✅ CACHE BUSTER INLINE READY');
+  </script>
+  
+  <!-- Fix para problemas de login y service worker -->
+  <script src="fix_login.js"></script>
+  
+  <!-- Configuración de API para campos correctos del backend -->
+  <script src="api_config.js"></script>
+  
+  <!-- Contenedor principal de Flutter -->
+  <div id="flutter-app-container">
+    <script src="flutter_bootstrap.js" async></script>
+  </div>
+
+  <!-- 🎬 CONTENEDOR DEL CARRUSEL NETFLIX (se mostrará después del login) -->
+  <div id="promociones-netflix-container">
+    <div id="promociones-carousel-netflix">
+      <!-- El carrusel se renderizará aquí dinámicamente -->
+    </div>
+  </div>
+
+  <!-- 🎬 CARRUSEL NETFLIX COMPONENT -->
+  <script src="carousel-netflix-component.js"></script>
+  
+  <script>
+    // 🎯 INTEGRACIÓN CON FLUTTER APP (guard para evitar redeclaraciones)
+    if (typeof window.promocionesCarouselModule === 'undefined') {
+      window.promocionesCarouselModule = true;
+      
+      let promocionesCarousel;
+      let isUserAuthenticated = false;
+
+      // Función para inicializar el carrusel cuando el usuario se autentique
+      function initPromocionesCarousel() {
+      if (promocionesCarousel) {
+        promocionesCarousel.destroy();
+      }
+
+      promocionesCarousel = new PromocionesCarousel('promociones-carousel-netflix', {
+        apiUrl: 'https://alumno-backend-node.onrender.com/api',
+        autoPlayInterval: 5000,
+        itemsPerView: 3,
+        slideSpeed: 600,
+        enableAutoPlay: true,
+        enableTouch: true
+      });
+
+      // Mostrar el contenedor del carrusel
+      const container = document.getElementById('promociones-netflix-container');
+      if (container) {
+        container.style.display = 'block';
+        container.style.animation = 'slideInFromBottom 0.6s ease-out';
+      }
+
+      console.log('🎬 Carrusel Netflix inicializado para usuario autenticado');
+    }
+
+    // Función para ocultar el carrusel cuando el usuario cierre sesión
+    function hidePromocionesCarousel() {
+      const container = document.getElementById('promociones-netflix-container');
+      if (container) {
+        container.style.display = 'none';
+      }
+      
+      if (promocionesCarousel) {
+        promocionesCarousel.destroy();
+        promocionesCarousel = null;
+      }
+      
+      isUserAuthenticated = false;
+      console.log('🎬 Carrusel oculto - usuario no autenticado');
+    }
+
+    // Detectar cambios en el localStorage para saber si el usuario se autentica
+    function checkAuthStatus() {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('jwt');
+      const wasAuthenticated = isUserAuthenticated;
+      isUserAuthenticated = !!token;
+
+      // Si cambió el estado de autenticación
+      if (isUserAuthenticated && !wasAuthenticated) {
+        // Usuario se autenticó
+        setTimeout(initPromocionesCarousel, 1000); // Delay para que Flutter termine de cargar
+      } else if (!isUserAuthenticated && wasAuthenticated) {
+        // Usuario cerró sesión
+        hidePromocionesCarousel();
+      }
+    }
+
+    // Monitorear cambios en localStorage
+    window.addEventListener('storage', checkAuthStatus);
+    
+    // Verificar estado inicial después de que la página cargue
+    window.addEventListener('load', function() {
+      setTimeout(checkAuthStatus, 2000); // Delay para que Flutter inicialice
+      
+      // Verificar periódicamente si el usuario se autenticó
+      const authCheckInterval = setInterval(() => {
+        checkAuthStatus();
+        
+        // Si ya está autenticado y el carrusel inicializado, dejar de verificar tan frecuentemente
+        if (isUserAuthenticated && promocionesCarousel) {
+          clearInterval(authCheckInterval);
+          
+          // Verificar menos frecuentemente para cambios de sesión
+          setInterval(checkAuthStatus, 5000);
+        }
+      }, 1000);
+    });
+
+    // Función global para que Flutter pueda llamar directamente
+    window.initCarruselPromociones = function(userToken) {
+      if (userToken) {
+        localStorage.setItem('authToken', userToken);
+      }
+      initPromocionesCarousel();
+    };
+
+    // Función global para ocultar el carrusel
+    window.hideCarruselPromociones = function() {
+      hidePromocionesCarousel();
+    };
+
+    // CSS para animación de entrada
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInFromBottom {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    console.log('🎬 Sistema de carrusel Netflix preparado para integración con Flutter');
+    
+    } // Fin guard promocionesCarouselModule
+  </script>
+</body>
+</html>
