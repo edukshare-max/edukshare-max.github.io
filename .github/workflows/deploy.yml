@@ -19,9 +19,6 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
     - name: Checkout
@@ -51,6 +48,21 @@ jobs:
         path: ./build/web
         
     - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
       if: github.ref == 'refs/heads/main'
+      run: |
+        # Copy build files to root
+        cp -r build/web/* .
+        
+        # Remove temporary index.html if exists
+        rm -f index.html.bak
+        
+        # Configure git
+        git config --global user.name 'GitHub Actions Deploy'
+        git config --global user.email 'actions@github.com'
+        
+        # Add and commit changes
+        git add .
+        git commit -m "🚀 Auto-deploy Flutter Web App" || echo "No changes to commit"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
