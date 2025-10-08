@@ -550,5 +550,4 @@ class PromocionesCarousel {
     }
 }
 
-// Instancia global para facilitar el uso
-let promocionesCarousel;
+// Instancia global se declara en index.html para evitar duplicación
