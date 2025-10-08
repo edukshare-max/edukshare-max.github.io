@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Carnet Digital CRES - Universidad Autónoma de Guerrero</title>
+  <meta name="description" content="Carnet Digital del Centro Regional de Educación Superior (CRES) Llano Largo - UAGro.">
+  
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- 🔥 RESET TOTAL v2025.10.08.23.30 - ARCHIVO COMPLETAMENTE NUEVO -->
+  <script>
+    console.log('🔥 RESET TOTAL v2025.10.08.23.30 - Archivo completamente nuevo');
+    console.log('❌ Si ves CUALQUIER mensaje de carrusel o SIMPLIFIED, es cache persistente');
+    console.log('✅ Esta es la versión LIMPIA sin ninguna referencia vieja');
+    
+    // Eliminar CUALQUIER script de carrusel que pueda existir
+    document.addEventListener('DOMContentLoaded', function() {
+      const scripts = document.querySelectorAll('script');
+      scripts.forEach(script => {
+        if (script.src && (script.src.includes('carousel') || script.src.includes('carrusel'))) {
+          script.remove();
+          console.log('🗑️ Script de carrusel eliminado:', script.src);
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <!-- 🎯 RESET METODOLÓGICO - ESTRUCTURA MÍNIMA -->
+  <div id="loading" style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial;">
+    <div style="text-align: center;">
+      <h2>🔄 RESET TOTAL - Cargando versión limpia...</h2>
+      <p>Si este mensaje permanece, hay un problema de cache más profundo</p>
+    </div>
+  </div>
+
+  <!-- Scripts de Flutter (solo esenciales) -->
+  <script src="flutter_bootstrap.js" async></script>
+  
+  <!-- Fix de login LIMPIO -->
+  <script>
+    console.log('🔧 RESET - Aplicando fix de login limpio...');
+    
+    // Solo limpiar Service Worker, sin referencias a carrusel
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        registrations.forEach(registration => {
+          registration.unregister().then(function(success) {
+            console.log('✅ RESET - Service Worker eliminado:', success);
+          });
+        });
+      });
+    }
+    
+    // Limpiar cache del navegador
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        names.forEach(name => {
+          caches.delete(name);
+          console.log('✅ RESET - Cache eliminado:', name);
+        });
+      });
+    }
+    
+    console.log('✅ RESET COMPLETO - Sistema limpio');
+  </script>
+  
+  <!-- API Config LIMPIO -->
+  <script>
+    window.API_CONFIG = {
+      baseUrl: 'https://carnet-alumnos-nodes.onrender.com',
+      fieldMapping: {
+        'email': 'correo',
+        'matricula': 'matricula'
+      }
+    };
+    console.log('✅ RESET - API_CONFIG cargado (versión limpia)');
+  </script>
+</body>
+</html>
