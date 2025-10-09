@@ -1,5 +1,5 @@
 services:
-  # 🏥 Backend SASU - API Node.js
+  # 🏥 Backend SASU - API Node.js + Azure Cosmos DB
   - type: web
     name: carnet-alumnos-backend-sasu
     runtime: node
@@ -12,10 +12,16 @@ services:
         value: production
       - key: PORT
         value: 3000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: sasu-db
-          property: connectionString
+      # Azure Cosmos DB - DEBES CONFIGURAR ESTOS VALORES MANUALMENTE
+      - key: COSMOS_ENDPOINT
+        sync: false  # Se configura manualmente desde el dashboard
+      - key: COSMOS_KEY
+        sync: false  # Se configura manualmente desde el dashboard
+      - key: COSMOS_DATABASE_ID
+        value: "sasu_database"
+      - key: COSMOS_CONTAINER_ID
+        value: "promociones_salud"
+      # JWT y seguridad
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRATION
@@ -28,9 +34,5 @@ services:
         value: "100"
     healthCheckPath: /health
 
-# 🗄️ Base de datos PostgreSQL
-databases:
-  - name: sasu-db
-    plan: free
-    databaseName: sasu_production
-    user: sasu_admin
+# NOTA: No se crea base de datos PostgreSQL porque usamos Azure Cosmos DB existente
+# La base de datos Cosmos DB debe estar configurada previamente con el contenedor 'promociones_salud'

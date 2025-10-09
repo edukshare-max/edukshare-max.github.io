@@ -9,7 +9,7 @@ require('dotenv').config();
 // Importar rutas y middlewares
 const promocionesRoutes = require('./routes/promociones');
 const rateLimitMiddleware = require('./middleware/rateLimitMiddleware');
-const { sequelize } = require('./config/database');
+const cosmosDB = require('./config/cosmosdb');
 
 /**
  * Servidor principal del sistema SASU
@@ -243,16 +243,15 @@ class SASUServer {
    */
   async initializeDatabase() {
     try {
-      await sequelize.authenticate();
-      console.log('[SASU] ✅ Conexión a base de datos establecida');
-      
-      // No sincronizar automáticamente si las tablas ya existen
-      // Usar npm run seed para poblar datos
-      // await sequelize.sync({ alter: false });
-      console.log('[SASU] ✅ Base de datos lista');
+      console.log('[SASU] 🔄 Iniciando conexión a Azure Cosmos DB...');
+      await cosmosDB.initCosmosDB();
+      console.log('[SASU] ✅ Conexión a Cosmos DB establecida');
+      console.log('[SASU] ℹ️  Backend configurado en modo SOLO LECTURA');
+      console.log('[SASU] ℹ️  Las promociones se gestionan desde la app de administración');
       
     } catch (error) {
-      console.error('[SASU] ❌ Error conectando a base de datos:', error);
+      console.error('[SASU] ❌ Error conectando a Cosmos DB:', error);
+      console.error('[SASU] ℹ️  Verifica las variables de entorno: COSMOS_ENDPOINT y COSMOS_KEY');
       process.exit(1);
     }
   }

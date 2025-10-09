@@ -9,32 +9,38 @@ class DataSeeder {
   
   async seedAll() {
     try {
-      console.log('[DataSeeder] 🌱 Iniciando población de datos...');
+      console.log('[DataSeeder] 🔄 Inicializando base de datos SASU...');
       console.log('[DataSeeder] 📊 Entorno:', process.env.NODE_ENV || 'development');
+      console.log('[DataSeeder] ℹ️  NOTA: Este backend solo LEE promociones de la BD SASU');
+      console.log('[DataSeeder] ℹ️  Las promociones se crean desde otra aplicación\n');
       
-      // Sincronizar modelos (crear tablas si no existen)
-      console.log('[DataSeeder] 🔄 Sincronizando modelos con base de datos...');
-      await sequelize.sync({ force: false, alter: true });
-      console.log('[DataSeeder] ✅ Modelos sincronizados');
+      // Sincronizar modelos (crear tablas si no existen, sin borrar datos)
+      console.log('[DataSeeder] 🔄 Sincronizando modelos con base de datos existente...');
+      await sequelize.sync({ force: false, alter: false });
+      console.log('[DataSeeder] ✅ Modelos sincronizados con tablas existentes');
       
-      // Poblar en orden de dependencias
-      await this.seedCategorias();
-      await this.seedDepartamentos();
-      await this.seedPromociones();
+      // NO poblar datos - solo verificar estructura
+      console.log('\n[DataSeeder] 🔍 Verificando tablas existentes...');
       
-      // Mostrar resumen
+      // Mostrar resumen de datos existentes
       const countCategorias = await CategoriaPromocion.count();
       const countDepartamentos = await DepartamentoSalud.count();
       const countPromociones = await PromocionSalud.count();
       
-      console.log('\n[DataSeeder] 📊 RESUMEN:');
+      console.log('\n[DataSeeder] 📊 DATOS ACTUALES EN BASE DE DATOS:');
       console.log(`  • Categorías: ${countCategorias}`);
       console.log(`  • Departamentos: ${countDepartamentos}`);
       console.log(`  • Promociones: ${countPromociones}`);
-      console.log('[DataSeeder] ✅ Datos poblados exitosamente\n');
+      
+      if (countPromociones === 0) {
+        console.log('\n[DataSeeder] ⚠️  No hay promociones en la base de datos');
+        console.log('[DataSeeder] ℹ️  Las promociones deben crearse desde la aplicación de administración');
+      } else {
+        console.log('\n[DataSeeder] ✅ Base de datos SASU lista para consultas');
+      }
       
     } catch (error) {
-      console.error('[DataSeeder] ❌ Error poblando datos:', error);
+      console.error('[DataSeeder] ❌ Error inicializando base de datos:', error);
       throw error;
     }
   }
