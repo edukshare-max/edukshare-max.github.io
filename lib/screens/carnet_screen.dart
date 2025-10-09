@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:carnet_digital_uagro/providers/session_provider.dart';
 import 'package:carnet_digital_uagro/models/carnet_model.dart';
 import 'package:carnet_digital_uagro/theme/uagro_theme.dart';
@@ -741,6 +742,278 @@ class _CarnetScreenState extends State<CarnetScreen> {
     
     return Container(
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => _abrirEnlaceDirecto(promocion),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // IMAGEN PREVIEW / HEADER CON GRADIENTE
+              Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  gradient: cardData['gradient'],
+                ),
+                child: Stack(
+                  children: [
+                    // Patrón de fondo
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: CustomPaint(
+                          painter: _PatternPainter(
+                            color: Colors.white.withOpacity(0.05),
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    // Contenido del header
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Badge de categoría
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  cardData['icon'],
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  promocion.categoria.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const Spacer(),
+                          
+                          // Título en el header
+                          Text(
+                            promocion.programa,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black26,
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // CONTENIDO INFORMATIVO
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Departamento
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.business_outlined,
+                            size: 16,
+                            color: cardData['primaryColor'],
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            promocion.departamento,
+                            style: TextStyle(
+                              color: cardData['primaryColor'],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Descripción
+                      Expanded(
+                        child: Text(
+                          promocion.descripcion.isNotEmpty 
+                            ? promocion.descripcion 
+                            : 'Conoce más sobre esta promoción de salud',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 14,
+                            height: 1.4,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Preview del enlace (si existe)
+                      if (promocion.link.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.link_rounded,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _obtenerDominioDeLink(promocion.link),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Icon(
+                                Icons.open_in_new,
+                                size: 14,
+                                color: Colors.grey[500],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      
+                      // Botón de acción
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () => _abrirEnlaceDirecto(promocion),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: cardData['primaryColor'],
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'Más información',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  // Función helper para extraer dominio del link
+  String _obtenerDominioDeLink(String link) {
+    try {
+      final uri = Uri.parse(link);
+      String dominio = uri.host;
+      
+      // Remover 'www.' si existe
+      if (dominio.startsWith('www.')) {
+        dominio = dominio.substring(4);
+      }
+      
+      return dominio;
+    } catch (e) {
+      return link.length > 30 ? '${link.substring(0, 30)}...' : link;
+    }
+  }
+  
+  // Función anterior del botón - ahora reemplazada arriba
+  Widget _buildNetflixCardOLD(promocion) {
+    final cardData = _getCardDesign(promocion.categoria);
+    
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -1219,22 +1492,76 @@ class _CarnetScreenState extends State<CarnetScreen> {
       // Marcar como vista
       context.read<SessionProvider>().marcarPromocionVista(promocion.id);
       
-      // Mostrar loading elegante
-      _mostrarLoadingElegante();
-      
-      // Simular procesamiento
-      await Future.delayed(const Duration(milliseconds: 800));
-      Navigator.of(context).pop(); // Cerrar loading
-      
-      // Mostrar enlace
+      // Si hay enlace, abrirlo directamente
       if (promocion.link.isNotEmpty) {
-        _mostrarEnlaceFinal(promocion);
+        final Uri url = Uri.parse(promocion.link);
+        
+        // Intentar abrir el enlace
+        if (await canLaunchUrl(url)) {
+          await launchUrl(
+            url,
+            mode: LaunchMode.externalApplication, // Abrir en navegador externo
+          );
+          
+          // Mostrar mensaje de confirmación
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.open_in_new, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Abriendo: ${_obtenerDominioDeLink(promocion.link)}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.green[700],
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        } else {
+          // Si no se puede abrir, mostrar error
+          throw 'No se pudo abrir el enlace';
+        }
       } else {
+        // Si no hay enlace, mostrar detalle
         _mostrarDetallePromocion(promocion);
       }
     } catch (e) {
-      Navigator.of(context).pop(); // Cerrar loading
-      _mostrarErrorEnlace();
+      // Mostrar error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'No se pudo abrir el enlace. Verifica tu conexión.',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
