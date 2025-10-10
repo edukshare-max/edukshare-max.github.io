@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Backend y utilidades (no necesarios para deployment)
+/carnet_alumnos_nodes/
+/backend-sasu/
