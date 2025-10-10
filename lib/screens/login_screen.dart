@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     
                     const Text(
-                      'Carnet Digital UAGro',
+                      'Carnet Digital Universitario',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -124,9 +124,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 8),
                     
                     const Text(
+                      'CRES Llano Largo',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: UAGroColors.primary,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 4),
+                    
+                    const Text(
                       'Universidad Autónoma de Guerrero',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.grey,
                       ),
                     ),

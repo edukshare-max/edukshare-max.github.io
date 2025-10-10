@@ -3,9 +3,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/session_provider.dart';
-import '../models/cita_model.dart';
-import '../theme/uagro_theme.dart';
+import 'package:carnet_digital_uagro/providers/session_provider.dart';
+import 'package:carnet_digital_uagro/models/cita_model.dart';
+import 'package:carnet_digital_uagro/theme/uagro_theme.dart';
 
 class CitasScreen extends StatefulWidget {
   const CitasScreen({super.key});
@@ -250,33 +250,6 @@ class _CitasScreenState extends State<CitasScreen> {
                 ],
               ),
             ],
-            
-            // Botones de acción (solo para citas programadas)
-            if (cita.estado.toLowerCase() == 'programada') ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _cancelarCita(cita),
-                      icon: const Icon(Icons.cancel_outlined),
-                      label: const Text('Cancelar'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: UAGroColors.error,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _confirmarCita(cita),
-                      icon: const Icon(Icons.check),
-                      label: const Text('Confirmar'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),
@@ -290,42 +263,5 @@ class _CitasScreenState extends State<CitasScreen> {
     ];
     
     return '${fecha.day} de ${months[fecha.month - 1]} ${fecha.year}';
-  }
-
-  void _cancelarCita(CitaModel cita) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancelar Cita'),
-        content: const Text('¿Estás seguro de que quieres cancelar esta cita?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Implementar cancelación en el backend
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Funcionalidad próximamente disponible'),
-                ),
-              );
-            },
-            child: const Text('Sí, Cancelar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmarCita(CitaModel cita) {
-    // TODO: Implementar confirmación en el backend
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Funcionalidad próximamente disponible'),
-      ),
-    );
   }
 }
