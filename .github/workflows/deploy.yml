@@ -43,6 +43,9 @@ jobs:
     - name: Build web
       run: flutter build web --release
 
+    - name: Copy CNAME to build
+      run: cp web/CNAME build/web/CNAME
+
     - name: Verify CNAME
       run: |
         if [ -f "build/web/CNAME" ]; then
