@@ -231,41 +231,62 @@ class SessionProvider extends ChangeNotifier {
         print('ℹ️ No hay promociones disponibles');
         _promociones = [];
       } else {
+        // Debug: Mostrar todas las promociones recibidas
+        print('📋 PROMOCIONES RECIBIDAS DEL BACKEND:');
+        for (var p in promocionesApi) {
+          print('   - ID: ${p.id}');
+          print('     Destinatario: "${p.destinatario}"');
+          print('     Matrícula: "${p.matricula ?? ""}"');
+          print('     Autorizado: ${p.autorizado}');
+          print('     Categoría: ${p.categoria}');
+        }
+        
         // Filtrar promociones autorizadas
         final autorizadas = promocionesApi.where((p) => p.autorizado == true).toList();
         
         print('✅ Promociones autorizadas: ${autorizadas.length}');
         
         // Filtrar por destinatario según la lógica de Cosmos DB:
-        // 1. destinatario="general" → Para TODOS los usuarios
+        // 1. destinatario="general" → Para TODOS los usuarios (SIEMPRE)
         // 2. destinatario="alumno" + matricula="" → Para TODOS los alumnos
         // 3. destinatario="alumno" + matricula="15662" → SOLO para esa matrícula
+        
+        print('🔍 FILTRANDO PROMOCIONES PARA MATRÍCULA: $matricula');
+        
         _promociones = autorizadas.where((p) {
-          // Caso 1: Promoción GENERAL (para todos)
-          if (p.destinatario.toLowerCase() == 'general') {
-            print('   ✓ GENERAL: ${p.categoria} - ${p.departamento}');
+          final destinatarioLower = p.destinatario.toLowerCase().trim();
+          final matriculaPromo = p.matricula?.trim() ?? '';
+          
+          print('🔎 Evaluando promoción ${p.id}:');
+          print('   Destinatario: "$destinatarioLower"');
+          print('   Matrícula promo: "$matriculaPromo"');
+          
+          // Caso 1: Promoción GENERAL (para todos) - SIEMPRE SE INCLUYE
+          if (destinatarioLower == 'general') {
+            print('   ✅ INCLUIDA: Es GENERAL (para todos los usuarios)');
             return true;
           }
           
           // Caso 2: destinatario="alumno"
-          if (p.destinatario.toLowerCase() == 'alumno') {
+          if (destinatarioLower == 'alumno') {
             // Si tiene matrícula específica, verificar que coincida
-            if (p.matricula != null && p.matricula!.isNotEmpty) {
-              if (p.matricula == matricula) {
-                print('   ✓ ALUMNO ESPECÍFICO [$matricula]: ${p.categoria} - ${p.departamento}');
+            if (matriculaPromo.isNotEmpty) {
+              if (matriculaPromo == matricula) {
+                print('   ✅ INCLUIDA: ALUMNO ESPECÍFICO (matrícula coincide: $matricula)');
                 return true;
               } else {
-                // Es para otro alumno
+                print('   ❌ EXCLUIDA: Es para otro alumno ($matriculaPromo ≠ $matricula)');
                 return false;
               }
             } else {
               // Sin matrícula = para todos los alumnos
-              print('   ✓ TODOS LOS ALUMNOS: ${p.categoria} - ${p.departamento}');
+              print('   ✅ INCLUIDA: Para TODOS LOS ALUMNOS (sin matrícula específica)');
               return true;
             }
           }
           
           // No aplica para este usuario
+          print('   ❌ EXCLUIDA: Destinatario "$destinatarioLower" no reconocido');
           return false;
         }).toList();
         
