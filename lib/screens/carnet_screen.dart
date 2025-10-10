@@ -12,6 +12,8 @@ import 'package:carnet_digital_uagro/models/promocion_salud_model.dart';
 import 'package:carnet_digital_uagro/theme/uagro_theme.dart';
 import 'package:carnet_digital_uagro/screens/citas_screen.dart';
 import 'dart:ui';
+import 'dart:typed_data';
+import 'dart:html' as html;
 
 class CarnetScreen extends StatefulWidget {
   const CarnetScreen({super.key});
@@ -25,6 +27,25 @@ class _CarnetScreenState extends State<CarnetScreen> {
   
   // 🎯 ESTADO HOVER PARA PROMOCIONES
   Set<String> _hoveredCards = <String>{};
+  
+  // 📸 FOTO DE PERFIL
+  Uint8List? _fotoPerfil;
+  
+  // 🌙 TEMA OSCURO
+  bool _modoOscuro = false;
+  
+  // 🔗 CACHE DE PREVIEWS DE LINKS
+  Map<String, Map<String, String>> _linkPreviews = {};
+  
+  // 🎗️ CONMEMORACIONES Y MOÑITO
+  Map<String, dynamic> _conmemoracionActual = {
+    'fecha': '19 de Octubre',
+    'titulo': 'Día Mundial de Lucha contra el Cáncer de Mama',
+    'descripcion': 'Día dedicado a la concientización sobre la importancia de la detección temprana del cáncer de mama.',
+    'color': const Color(0xFFE91E63),
+    'icono': '♥',
+    'activa': true,
+  };
 
   @override
   void initState() {
@@ -68,13 +89,30 @@ class _CarnetScreenState extends State<CarnetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Fondo blanco limpio
+      backgroundColor: _modoOscuro ? const Color(0xFF121212) : Colors.white,
+      drawer: _buildModernDrawer(context), // 🎯 NUEVO MENÚ LATERAL
       appBar: AppBar(
-        title: const Text('Carnet Digital UAGro', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        foregroundColor: UAGroColors.primary,
+        title: Text(
+          'Carnet Digital Universitario CRES Llano Largo - SASU',
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            color: _modoOscuro ? Colors.white : UAGroColors.primary,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: _modoOscuro ? const Color(0xFF1F1F1F) : Colors.white,
+        foregroundColor: _modoOscuro ? Colors.white : UAGroColors.primary,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.1),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, 
+                      color: _modoOscuro ? Colors.white : UAGroColors.primary, 
+                      size: 28),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            tooltip: 'Abrir menú',
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.medical_services_outlined),
@@ -97,20 +135,198 @@ class _CarnetScreenState extends State<CarnetScreen> {
           ),
         ],
       ),
-      body: Consumer<SessionProvider>(
-        builder: (context, session, child) {
-          if (session.isLoading && session.carnet == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Column(
+        children: [
+          // 🎗️ MOÑITO CONMEMORATIVO
+          if (_conmemoracionActual['activa'] == true)
+            _buildMonitoConmemorativo(),
           
-          if (session.carnet == null) {
-            return const Center(
-              child: Text('No se pudo cargar la información del carnet.'),
-            );
-          }
+          // CONTENIDO PRINCIPAL
+          Expanded(
+            child: Consumer<SessionProvider>(
+              builder: (context, session, child) {
+                if (session.isLoading && session.carnet == null) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                if (session.carnet == null) {
+                  return const Center(
+                    child: Text('No se pudo cargar la información del carnet.'),
+                  );
+                }
+                
+                return _buildCarnetContent(context, session.carnet!);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🎗️ CONSTRUIR MOÑITO CONMEMORATIVO
+  Widget _buildMonitoConmemorativo() {
+    final conmemoracion = _conmemoracionActual;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+          // Sombra rosa suave que rodea el rectángulo
+          BoxShadow(
+            color: (conmemoracion['color'] as Color).withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 0),
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Información principal
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _mostrarDetalleConmemoracion(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    conmemoracion['fecha'],
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: conmemoracion['color'],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    conmemoracion['titulo'],
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: _modoOscuro ? Colors.white : Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
           
-          return _buildCarnetContent(context, session.carnet!);
-        },
+          // Botón de cierre
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _conmemoracionActual['activa'] = false;
+              });
+            },
+            icon: Icon(
+              Icons.close,
+              size: 18,
+              color: (_modoOscuro ? Colors.white : Colors.black87).withOpacity(0.6),
+            ),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🎗️ MOSTRAR DETALLE DE CONMEMORACIÓN
+  void _mostrarDetalleConmemoracion() {
+    final conmemoracion = _conmemoracionActual;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              conmemoracion['fecha'],
+              style: TextStyle(
+                fontSize: 12,
+                color: conmemoracion['color'],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              conmemoracion['titulo'],
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              conmemoracion['descripcion'],
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: (conmemoracion['color'] as Color).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: conmemoracion['color'],
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'UAGro se une a esta importante conmemoración promoviendo la salud estudiantil.',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Aquí podrías agregar navegación a recursos relacionados
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Consulta más información en el área de salud'),
+                  backgroundColor: conmemoracion['color'],
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: conmemoracion['color'],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Más Info'),
+          ),
+        ],
       ),
     );
   }
@@ -134,15 +350,40 @@ class _CarnetScreenState extends State<CarnetScreen> {
                 ),
               ],
             ),
-            child: const Text(
-              'UNIVERSIDAD AUTÓNOMA DE GUERRERO',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: UAGroColors.primary,
-                letterSpacing: 0.5,
-              ),
-              textAlign: TextAlign.center,
+            child: Column(
+              children: [
+                const Text(
+                  'UNIVERSIDAD AUTÓNOMA DE GUERRERO',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: UAGroColors.primary,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'CRES Llano Largo - Sistema SASU',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: UAGroColors.secondary,
+                    letterSpacing: 0.3,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Text(
+                  'Proyecto Piloto',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
           
@@ -181,10 +422,6 @@ class _CarnetScreenState extends State<CarnetScreen> {
           ),
           // --- FIN DE CONTENEDOR COLAPSABLE ---
 
-          const SizedBox(height: 20),
-          
-          // QR Code Card (Ahora fuera del desplegable para acceso rápido)
-          _buildQrCard(carnet),
           const SizedBox(height: 20),
           
           // 🏥 ÁREA DE PROMOCIONES DE SALUD
@@ -2432,7 +2669,74 @@ class _CarnetScreenState extends State<CarnetScreen> {
     );
   }
 
-  // 🏥 CARD INDIVIDUAL DE PROMOCIÓN
+  // 🔗 OBTENER PREVIEW DE LINK
+  Future<Map<String, String>> _obtenerPreviewLink(String url) async {
+    // Si ya tenemos el preview cached, lo devolvemos
+    if (_linkPreviews.containsKey(url)) {
+      return _linkPreviews[url]!;
+    }
+
+    try {
+      // Para webs comunes, podemos hacer inferencias inteligentes
+      Map<String, String> preview = {
+        'titulo': '',
+        'descripcion': '',
+        'imagen': '',
+        'sitio': '',
+      };
+
+      final uri = Uri.parse(url);
+      final domain = uri.host.toLowerCase();
+
+      // Detectar tipos de sitio y generar previews inteligentes
+      if (domain.contains('facebook.com')) {
+        preview = {
+          'titulo': 'Promoción de Salud UAGro',
+          'descripcion': 'Información importante sobre salud y bienestar estudiantil.',
+          'imagen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Facebook_f_logo_%282019%29.svg/1024px-Facebook_f_logo_%282019%29.svg.png',
+          'sitio': 'Facebook',
+        };
+      } else if (domain.contains('gob.mx')) {
+        preview = {
+          'titulo': 'Información Oficial de Salud',
+          'descripcion': 'Recursos y guías oficiales del Gobierno de México sobre salud.',
+          'imagen': 'https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg',
+          'sitio': 'Gobierno de México',
+        };
+      } else if (domain.contains('youtube.com') || domain.contains('youtu.be')) {
+        preview = {
+          'titulo': 'Video Educativo de Salud',
+          'descripcion': 'Contenido audiovisual sobre promoción de la salud.',
+          'imagen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1024px-YouTube_full-color_icon_%282017%29.svg.png',
+          'sitio': 'YouTube',
+        };
+      } else {
+        // Preview genérico para otros sitios
+        preview = {
+          'titulo': 'Recurso de Salud',
+          'descripcion': 'Información valiosa sobre promoción de la salud y bienestar.',
+          'imagen': 'https://cdn-icons-png.flaticon.com/512/3004/3004543.png',
+          'sitio': domain,
+        };
+      }
+
+      // Cachear el resultado
+      _linkPreviews[url] = preview;
+      return preview;
+    } catch (e) {
+      // Preview de fallback
+      final fallback = {
+        'titulo': 'Recurso Educativo',
+        'descripcion': 'Contenido relacionado con promoción de la salud.',
+        'imagen': 'https://cdn-icons-png.flaticon.com/512/3004/3004543.png',
+        'sitio': 'Enlace externo',
+      };
+      _linkPreviews[url] = fallback;
+      return fallback;
+    }
+  }
+
+  // 🏥 CARD INDIVIDUAL DE PROMOCIÓN CON PREVIEW
   Widget _buildPromocionCard(promocion) {
     // Convertir color hex a Color
     Color cardColor;
@@ -2444,18 +2748,11 @@ class _CarnetScreenState extends State<CarnetScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            cardColor,
-            cardColor.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: _modoOscuro ? const Color(0xFF1F1F1F) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: cardColor.withOpacity(0.3),
+            color: (_modoOscuro ? Colors.white : Colors.black).withOpacity(0.1),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -2471,22 +2768,153 @@ class _CarnetScreenState extends State<CarnetScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header con icono y días restantes
+                // Preview del Link (si existe)
+                if (promocion.link != null && promocion.link.isNotEmpty)
+                  FutureBuilder<Map<String, String>>(
+                    future: _obtenerPreviewLink(promocion.link),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final preview = snapshot.data!;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: cardColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: cardColor.withOpacity(0.3)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                // Imagen del preview
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    width: 50,
+                                    height: 50,
+                                    color: cardColor.withOpacity(0.2),
+                                    child: preview['imagen']!.isNotEmpty
+                                        ? Image.network(
+                                            preview['imagen']!,
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) =>
+                                                Icon(Icons.link, color: cardColor, size: 24),
+                                          )
+                                        : Icon(Icons.link, color: cardColor, size: 24),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                // Info del preview
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        preview['sitio']!,
+                                        style: TextStyle(
+                                          color: cardColor,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        preview['titulo']!,
+                                        style: TextStyle(
+                                          color: _modoOscuro ? Colors.white : Colors.black87,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(Icons.open_in_new, color: cardColor, size: 16),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      return Container(
+                        height: 50,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: cardColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.link, color: cardColor, size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Cargando preview...',
+                                style: TextStyle(
+                                  color: (_modoOscuro ? Colors.white : Colors.black87).withOpacity(0.6),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
+                // Header con icono y categoría
                 Row(
                   children: [
-                    Text(
-                      promocion.iconoTipo,
-                      style: const TextStyle(fontSize: 24),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: cardColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        promocion.iconoTipo,
+                        style: const TextStyle(fontSize: 20),
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            promocion.categoria.toUpperCase(),
+                            style: TextStyle(
+                              color: cardColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          Text(
+                            promocion.departamento,
+                            style: TextStyle(
+                              color: (_modoOscuro ? Colors.white : Colors.black87).withOpacity(0.6),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: cardColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '${promocion.diasRestantes} días',
+                        '${promocion.diasRestantes}d',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -2496,13 +2924,13 @@ class _CarnetScreenState extends State<CarnetScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 
                 // Título
                 Text(
                   promocion.titulo,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _modoOscuro ? Colors.white : Colors.black87,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
@@ -2517,7 +2945,7 @@ class _CarnetScreenState extends State<CarnetScreen> {
                   child: Text(
                     promocion.descripcion,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: (_modoOscuro ? Colors.white : Colors.black87).withOpacity(0.7),
                       fontSize: 13,
                       height: 1.3,
                     ),
@@ -2526,23 +2954,32 @@ class _CarnetScreenState extends State<CarnetScreen> {
                   ),
                 ),
                 
-                // Botón de acción
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                const SizedBox(height: 12),
+                
+                // Botón de acción mejorado
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [cardColor, cardColor.withOpacity(0.8)],
                     ),
-                    child: Text(
-                      'Ver más',
-                      style: TextStyle(
-                        color: cardColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.open_in_new, color: Colors.white, size: 16),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Ver Información',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
@@ -2788,6 +3225,167 @@ class _CarnetScreenState extends State<CarnetScreen> {
     }
   }
 
+  // 🔗 ABRIR ENLACE SIMPLE
+  void _abrirEnlaceDirectoSimple(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.open_in_new, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Text('Enlace abierto exitosamente'),
+              ],
+            ),
+            backgroundColor: UAGroColors.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
+    } catch (e) {
+      _mostrarErrorEnlace();
+    }
+  }
+
+  // 📋 MOSTRAR TÉRMINOS Y CONDICIONES
+  void _mostrarTerminosCondiciones() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.description, color: UAGroColors.primary),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Términos y Condiciones SASU')),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Sistema de Atención en Salud Universitaria (SASU)',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Al participar en el sistema SASU, usted acepta:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '1. Proporcionar información veraz sobre su estado de salud.\n\n'
+                '2. Mantener actualizados sus datos de contacto de emergencia.\n\n'
+                '3. Seguir las recomendaciones médicas proporcionadas.\n\n'
+                '4. Respetar los horarios de citas médicas programadas.\n\n'
+                '5. Sus datos serán protegidos conforme a la Ley de Protección de Datos Personales.',
+                style: TextStyle(height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'PROYECTO PILOTO: Este sistema está en fase de prueba para mejorar la atención de salud estudiantil en CRES Llano Largo.',
+                  style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendido'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🚨 MOSTRAR NÚMEROS DE EMERGENCIA
+  void _mostrarNumerosEmergencia() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.emergency, color: Colors.red),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Emergencias Acapulco, Gro.')),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildEmergencyItem('🚨', 'Emergencias General', '911'),
+              _buildEmergencyItem('🚑', 'Cruz Roja Acapulco', '744 485 4100'),
+              _buildEmergencyItem('🚒', 'Bomberos', '744 483 8282'),
+              _buildEmergencyItem('👮', 'Policía Municipal', '744 440 9191'),
+              _buildEmergencyItem('🏥', 'Hospital General', '744 445 0018'),
+              _buildEmergencyItem('⚕️', 'IMSS Acapulco', '744 469 0550'),
+              _buildEmergencyItem('🌊', 'Protección Civil', '744 481 1111'),
+              _buildEmergencyItem('🎓', 'Emergencia UAGro', '744 442 3000'),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  '⚠️ En caso de emergencia médica grave, marque 911 inmediatamente.',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 📞 HELPER PARA ITEMS DE EMERGENCIA
+  Widget _buildEmergencyItem(String emoji, String nombre, String numero) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(nombre, style: const TextStyle(fontWeight: FontWeight.w500)),
+                Text(numero, style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ⭐ LOADING ELEGANTE ESTILO STREAMING
   void _mostrarLoadingElegante() {
     showDialog(
@@ -3029,7 +3627,42 @@ class _CarnetScreenState extends State<CarnetScreen> {
     );
   }
 
-  // 📱 MENSAJE DE ENLACE SIMULADO
+  // � CAMBIAR FOTO DE PERFIL
+  void _cambiarFotoPerfil() {
+    final html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.accept = 'image/*';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      final files = uploadInput.files;
+      if (files?.isNotEmpty == true) {
+        final reader = html.FileReader();
+        reader.readAsArrayBuffer(files![0]);
+        reader.onLoadEnd.listen((e) {
+          setState(() {
+            _fotoPerfil = reader.result as Uint8List;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.photo_camera, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
+                  const Text('Foto de perfil actualizada'),
+                ],
+              ),
+              backgroundColor: UAGroColors.primary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.all(16),
+            ),
+          );
+        });
+      }
+    });
+  }
+
+  // �📱 MENSAJE DE ENLACE SIMULADO
   void _mostrarMensajeEnlace() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -3061,6 +3694,662 @@ class _CarnetScreenState extends State<CarnetScreen> {
         ),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // 📱 MENÚ LATERAL MODERNO PARA UNIVERSITARIOS (VERSIÓN SIMPLIFICADA)
+  Widget _buildModernDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          // Header simple
+          Consumer<SessionProvider>(
+            builder: (context, session, child) {
+              final carnet = session.carnet;
+              return UserAccountsDrawerHeader(
+                accountName: Text(carnet?.nombreCompleto ?? 'Estudiante UAGro'),
+                accountEmail: Text(carnet?.programa ?? 'Programa Académico'),
+                currentAccountPicture: GestureDetector(
+                  onTap: () => _cambiarFotoPerfil(),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    backgroundImage: _fotoPerfil != null ? MemoryImage(_fotoPerfil!) : null,
+                    child: _fotoPerfil == null 
+                      ? Stack(
+                          children: [
+                            Icon(Icons.person, color: UAGroColors.primary, size: 40),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: UAGroColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: EdgeInsets.all(2),
+                                child: Icon(Icons.camera_alt, color: Colors.white, size: 12),
+                              ),
+                            ),
+                          ],
+                        )
+                      : null,
+                  ),
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [UAGroColors.primary, UAGroColors.primary.withOpacity(0.8)],
+                  ),
+                ),
+              );
+            },
+          ),
+          
+          // Mi QR
+          ListTile(
+            leading: Icon(Icons.qr_code, color: UAGroColors.primary),
+            title: const Text('Mi Código QR'),
+            onTap: () {
+              Navigator.pop(context);
+              _showQRDialog(context);
+            },
+          ),
+          
+          const Divider(),
+          
+          // Salud
+          ListTile(
+            leading: const Icon(Icons.health_and_safety, color: Colors.red),
+            title: const Text('Salud'),
+            subtitle: const Text('Citas médicas y promociones'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CitasScreen()),
+              );
+            },
+          ),
+          
+          // Revista IMSS Familia
+          ListTile(
+            leading: const Icon(Icons.menu_book, color: Colors.blue),
+            title: const Text('Revista IMSS Familia'),
+            subtitle: const Text('Recursos de salud familiar'),
+            onTap: () {
+              Navigator.pop(context);
+              _abrirEnlaceDirectoSimple('https://www.imss.gob.mx/revista-familia-imss');
+            },
+          ),
+          
+          const Divider(),
+          
+          // Sincronizar
+          ListTile(
+            leading: Icon(Icons.sync, color: UAGroColors.primary),
+            title: const Text('Sincronizar Datos'),
+            onTap: () {
+              Navigator.pop(context);
+              context.read<SessionProvider>().loadPromociones();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Datos sincronizados')),
+              );
+            },
+          ),
+          
+          // Modo Oscuro
+          ListTile(
+            leading: const Icon(Icons.dark_mode, color: Colors.purple),
+            title: const Text('Modo Oscuro'),
+            subtitle: Text(_modoOscuro ? 'Activado' : 'Desactivado'),
+            trailing: Switch(
+              value: _modoOscuro,
+              onChanged: (value) {
+                setState(() {
+                  _modoOscuro = value;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(_modoOscuro ? Icons.dark_mode : Icons.light_mode, 
+                             color: Colors.white, size: 20),
+                        const SizedBox(width: 12),
+                        Text(_modoOscuro ? 'Modo oscuro activado' : 'Modo claro activado'),
+                      ],
+                    ),
+                    backgroundColor: UAGroColors.primary,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.all(16),
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          const Divider(),
+          
+          // Términos y Condiciones
+          ListTile(
+            leading: const Icon(Icons.description, color: Colors.orange),
+            title: const Text('Términos y Condiciones'),
+            subtitle: const Text('Política de privacidad SASU'),
+            onTap: () {
+              Navigator.pop(context);
+              _mostrarTerminosCondiciones();
+            },
+          ),
+          
+          // Números de Emergencia
+          ListTile(
+            leading: const Icon(Icons.emergency, color: Colors.red),
+            title: const Text('Emergencias Acapulco'),
+            subtitle: const Text('Números importantes'),
+            onTap: () {
+              Navigator.pop(context);
+              _mostrarNumerosEmergencia();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Diálogo simple para mostrar QR
+  void _showQRDialog(BuildContext context) {
+    final carnet = context.read<SessionProvider>().carnet;
+    if (carnet == null) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Mi Código QR'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: QrImageView(
+                data: carnet.matricula ?? 'UAGro-Student',
+                version: QrVersions.auto,
+                size: 200,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(carnet.matricula ?? 'UAGro-000000'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🎓 HEADER DEL DRAWER CON PERFIL COMPACTO
+  Widget _buildDrawerHeader(BuildContext context) {
+    return Consumer<SessionProvider>(
+      builder: (context, session, child) {
+        final carnet = session.carnet;
+        final isMobile = _isMobileDevice(context);
+        
+        return Container(
+          height: isMobile ? 160 : 180,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                UAGroColors.primary,
+                UAGroColors.primary.withOpacity(0.8),
+                const Color(0xFF1565C0),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(isMobile ? 16 : 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // 📸 FOTO DE PERFIL CIRCULAR
+                      Container(
+                        width: isMobile ? 50 : 60,
+                        height: isMobile ? 50 : 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: isMobile ? 23 : 28,
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.person, size: isMobile ? 24 : 28, color: UAGroColors.primary),
+                        ),
+                      ),
+                      
+                      SizedBox(width: isMobile ? 12 : 16),
+                      
+                      // 📝 INFO BÁSICA
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              carnet?.nombreCompleto ?? 'Estudiante UAGro',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isMobile ? 14 : 16,
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              carnet?.programa ?? 'Programa Académico',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: isMobile ? 11 : 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const Spacer(),
+                  
+                  // 🎯 BADGES DE STATUS
+                  Row(
+                    children: [
+                      // Badge de matrícula
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 8 : 10,
+                          vertical: isMobile ? 4 : 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          carnet?.matricula ?? 'UAGro-000000',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMobile ? 10 : 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      
+                      const Spacer(),
+                      
+                      // Badge de categoría
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 6 : 8,
+                          vertical: isMobile ? 3 : 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          carnet?.categoria ?? 'Estudiante',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMobile ? 9 : 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // 🆔 SECCIÓN IDENTIDAD CON QR EXPANDIBLE
+  Widget _buildIdentitySection(BuildContext context) {
+    return ExpansionTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [UAGroColors.primary, UAGroColors.primary.withOpacity(0.8)],
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.qr_code_rounded, color: Colors.white, size: 20),
+      ),
+      title: const Text(
+        'Mi Código QR',
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1F2937),
+        ),
+      ),
+      subtitle: const Text(
+        'Mostrar identificación digital',
+        style: TextStyle(
+          fontSize: 12,
+          color: Color(0xFF6B7280),
+        ),
+      ),
+      children: [
+        Consumer<SessionProvider>(
+          builder: (context, session, child) {
+            final carnet = session.carnet;
+            if (carnet == null) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Carnet no disponible'),
+              );
+            }
+            
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                children: [
+                  // QR Code
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        QrImageView(
+                          data: carnet.matricula ?? 'UAGro-Student',
+                          version: QrVersions.auto,
+                          size: 120,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          carnet.matricula ?? 'UAGro-000000',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF374151),
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Botón de compartir
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: Implementar compartir QR
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Función de compartir próximamente')),
+                        );
+                      },
+                      icon: const Icon(Icons.share_rounded, size: 16),
+                      label: const Text('Compartir QR'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: UAGroColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // 🏥 SERVICIOS ESTUDIANTILES
+  Widget _buildStudentServicesSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'Servicios Estudiantiles',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6B7280),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        
+        // 🏥 SALUD
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.health_and_safety_rounded, color: Colors.red, size: 20),
+          ),
+          title: const Text(
+            'Salud',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: const Text(
+            'Citas médicas y promociones',
+            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
+          onTap: () {
+            Navigator.pop(context); // Cerrar drawer
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CitasScreen()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // ⚡ QUICK ACTIONS
+  Widget _buildQuickActionsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'Acciones Rápidas',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6B7280),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        
+        // 🔄 SYNC DATA
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: UAGroColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(Icons.sync_rounded, color: UAGroColors.primary, size: 20),
+          ),
+          title: const Text(
+            'Sincronizar Datos',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: const Text(
+            'Actualizar información',
+            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
+          onTap: () {
+            Navigator.pop(context); // Cerrar drawer
+            context.read<SessionProvider>().loadPromociones();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Datos sincronizados'),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+        ),
+        
+        // 🌙 MODO OSCURO (placeholder)
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.purple.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.dark_mode_rounded, color: Colors.purple, size: 20),
+          ),
+          title: const Text(
+            'Modo Oscuro',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: const Text(
+            'Próximamente disponible',
+            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
+          trailing: Switch(
+            value: false,
+            onChanged: null, // Deshabilitado por ahora
+            activeColor: UAGroColors.primary,
+          ),
+        ),
+        
+        // ⚙️ CONFIGURACIÓN (placeholder)
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.settings_rounded, color: Colors.grey, size: 20),
+          ),
+          title: const Text(
+            'Configuración',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: const Text(
+            'Notificaciones y privacidad',
+            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
+          onTap: () {
+            Navigator.pop(context); // Cerrar drawer
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Configuración próximamente')),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // 🔄 FOOTER DEL DRAWER
+  Widget _buildDrawerFooter(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        border: Border(
+          top: BorderSide(color: const Color(0xFFE5E7EB), width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.school_rounded,
+            size: 16,
+            color: UAGroColors.primary,
+          ),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text(
+              'Universidad Autónoma de Guerrero',
+              style: TextStyle(
+                fontSize: 11,
+                color: Color(0xFF6B7280),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            'v2.0',
+            style: TextStyle(
+              fontSize: 10,
+              color: UAGroColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
