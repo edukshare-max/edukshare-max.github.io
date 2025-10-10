@@ -46,6 +46,9 @@ jobs:
     - name: Copy CNAME to build
       run: cp web/CNAME build/web/CNAME
 
+    - name: Create .nojekyll file
+      run: touch build/web/.nojekyll
+
     - name: Verify CNAME
       run: |
         if [ -f "build/web/CNAME" ]; then
