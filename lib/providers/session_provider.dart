@@ -48,17 +48,13 @@ class SessionProvider extends ChangeNotifier {
       if (result != null && result['success'] == true && result['token'] != null) {
         _token = result['token'];  // Corregido: 'token' en lugar de 'access_token'
         _isLoggedIn = true;
-        notifyListeners(); // ✅ Notificar que el login fue exitoso
         
-        // Cargar datos del carnet
+        // Cargar todos los datos SIN notificar en cada paso
         await _loadCarnetData();
-        
-        // Cargar citas
         await _loadCitasData();
+        await loadPromociones(notifyWhenDone: false);
         
-        // Cargar promociones de salud
-        await loadPromociones();
-        
+        // SOLO UNA notificación al final con todos los datos cargados
         _setLoading(false); // ✅ Esto ya llama notifyListeners()
         return true;
       } else {
@@ -83,8 +79,7 @@ class SessionProvider extends ChangeNotifier {
       if (carnet != null) {
         _carnet = carnet;
         print('✅ Carnet cargado: ${carnet.nombreCompleto}');
-        print('🔄 Llamando notifyListeners() para carnet...');
-        notifyListeners(); // ¡IMPORTANTE! Notificar cambios a la UI
+        // NO llamar notifyListeners() aquí - se llamará al final del login
       } else {
         print('❌ No se pudo cargar el carnet');
       }
@@ -114,8 +109,7 @@ class SessionProvider extends ChangeNotifier {
         _citas = [];
       }
       
-      print('🔄 Llamando notifyListeners() para citas...');
-      notifyListeners();
+      // NO llamar notifyListeners() aquí - se llamará al final del login
     } catch (e) {
       print('❌ ERROR CARGANDO CITAS: $e');
       _citas = [];
@@ -181,145 +175,113 @@ class SessionProvider extends ChangeNotifier {
       ),
     ];
     
-    // Promociones demo de salud con nueva estructura SASU
-    _promociones = [
-      PromocionSaludModel(
-        id: 'demo:promocion-1',
-        matricula: '15662',
-        link: 'https://www.gob.mx/salud/articulos/chequeos-medicos-preventivos',
-        departamento: 'Consultorio médico',
-        categoria: 'Promoción',
-        programa: 'Licenciatura',
-        destinatario: 'alumno',
-        autorizado: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        createdBy: 'SASU',
-      ),
-      PromocionSaludModel(
-        id: 'demo:promocion-2',
-        matricula: '15662',
-        link: 'https://www.gob.mx/salud/articulos/vacunacion-universitaria',
-        departamento: 'Enfermería',
-        categoria: 'Prevención',
-        programa: 'Licenciatura',
-        destinatario: 'alumno',
-        autorizado: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        createdBy: 'SASU',
-      ),
-      PromocionSaludModel(
-        id: 'demo:promocion-3',
-        matricula: '15662',
-        link: 'https://www.gob.mx/salud/articulos/nutricion-estudiantil',
-        departamento: 'Nutrición',
-        categoria: 'Promoción',
-        programa: 'Licenciatura',
-        destinatario: 'alumno',
-        autorizado: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-        createdBy: 'SASU',
-      ),
-    ];
+    // Promociones: se cargan dinámicamente desde Cosmos DB
+    _promociones = [];
     
     _isLoggedIn = true;
     _token = 'DEMO_TOKEN';
     notifyListeners();
   }
 
-  // 🏥 CARGAR PROMOCIONES DE SALUD
-  Future<void> loadPromociones() async {
-    print('🔄 INICIANDO CARGA DE PROMOCIONES...');
+  // 📢 CARGAR PROMOCIONES DE SALUD DESDE COSMOS DB
+  // Filtrado por destinatario:
+  // - "general": Para todos los usuarios
+  // - "alumno": Para todos los alumnos (sin matrícula específica)
+  // - matrícula específica: Solo para ese alumno
+  Future<void> loadPromociones({bool notifyWhenDone = true}) async {
+    print('📢 ============================================');
+    print('📢 CARGANDO PROMOCIONES DE SALUD');
+    print('📢 ============================================');
     
-    // En modo demo, no hacer llamada API - las promociones ya están cargadas
+    // En modo demo, cargar promociones desde API
     if (_token == 'DEMO_TOKEN') {
-      print('🎭 Modo DEMO - usando promociones precargadas');
+      print('⚠️ Modo DEMO - cargando desde API...');
+      // Continuar con la carga normal
+    }
+    
+    // Validar autenticación
+    if (_token == null || _token!.isEmpty) {
+      print('❌ Sin token de autenticación');
+      _promociones = [];
       notifyListeners();
       return;
     }
     
-    // Para login real, intentar siempre la API incluso si no hay carnet completo
-    if (_token == null) {
-      print('❌ No hay token - no se puede conectar a API');
-      _agregarPromocionDebug();
+    // Validar que tengamos matrícula
+    if (_carnet == null || _carnet!.matricula.isEmpty) {
+      print('❌ Sin matrícula en el carnet');
+      _promociones = [];
+      notifyListeners();
       return;
     }
+    
+    final matricula = _carnet!.matricula;
+    print('🎓 Matrícula: $matricula');
     
     _setLoading(true);
+    
     try {
-      // Usar matrícula del carnet si existe, sino intentar con 15662
-      final matricula = _carnet?.matricula ?? '15662';
-      print('🔍 Buscando promociones para matrícula: $matricula');
-      print('🔑 Token disponible: ${_token!.substring(0, 10)}...');
-      
+      // Llamar al backend para obtener promociones
+      print('🔄 Consultando backend: /me/promociones');
       final promocionesApi = await ApiService.getPromocionesSalud(_token!, matricula);
       
-      print('📊 API RESPONSE: ${promocionesApi.length} promociones');
+      print('📊 Total recibido del backend: ${promocionesApi.length} promociones');
       
-      if (promocionesApi.isNotEmpty) {
-        // Filtrar promociones activas/autorizadas  
-        _promociones = promocionesApi.where((p) => p.autorizado).toList();
-        print('✅ PROMOCIONES CARGADAS DESDE API: ${_promociones.length}');
-        for (var p in _promociones) {
-          print('   - ${p.titulo} (${p.id}, ${p.categoria}, ${p.departamento})');
-        }
-        
-        // Si encontramos promociones reales, no agregar debug
-        if (_promociones.isNotEmpty) {
-          print('🎯 USANDO PROMOCIONES REALES DE LA API');
-        } else {
-          print('⚠️ Promociones filtradas resultaron vacías, agregando debug...');
-          _agregarPromocionDebug();
-        }
+      if (promocionesApi.isEmpty) {
+        print('ℹ️ No hay promociones disponibles');
+        _promociones = [];
       } else {
-        print('⚠️ API no devolvió promociones - endpoint no implementado en backend');
-        print('📝 Nota: El backend SASU aún no tiene endpoints de promociones');
-        _agregarPromocionDebug();
+        // Filtrar promociones autorizadas
+        final autorizadas = promocionesApi.where((p) => p.autorizado == true).toList();
+        
+        print('✅ Promociones autorizadas: ${autorizadas.length}');
+        
+        // Filtrar por destinatario según la lógica de Cosmos DB:
+        // 1. destinatario="general" → Para TODOS los usuarios
+        // 2. destinatario="alumno" + matricula="" → Para TODOS los alumnos
+        // 3. destinatario="alumno" + matricula="15662" → SOLO para esa matrícula
+        _promociones = autorizadas.where((p) {
+          // Caso 1: Promoción GENERAL (para todos)
+          if (p.destinatario.toLowerCase() == 'general') {
+            print('   ✓ GENERAL: ${p.categoria} - ${p.departamento}');
+            return true;
+          }
+          
+          // Caso 2: destinatario="alumno"
+          if (p.destinatario.toLowerCase() == 'alumno') {
+            // Si tiene matrícula específica, verificar que coincida
+            if (p.matricula != null && p.matricula!.isNotEmpty) {
+              if (p.matricula == matricula) {
+                print('   ✓ ALUMNO ESPECÍFICO [$matricula]: ${p.categoria} - ${p.departamento}');
+                return true;
+              } else {
+                // Es para otro alumno
+                return false;
+              }
+            } else {
+              // Sin matrícula = para todos los alumnos
+              print('   ✓ TODOS LOS ALUMNOS: ${p.categoria} - ${p.departamento}');
+              return true;
+            }
+          }
+          
+          // No aplica para este usuario
+          return false;
+        }).toList();
+        
+        print('🎯 Promociones filtradas para mostrar: ${_promociones.length}');
       }
       
-      print('🎯 PROMOCIONES FINALES: ${_promociones.length}');
-    } catch (e) {
-      print('❌ Error cargando promociones: $e');
-      print('� Todos los endpoints de promociones devuelven 404');
-      print('🔧 El backend necesita implementar endpoints de promociones');
-      _setError('Promociones no disponibles temporalmente');
-      _agregarPromocionDebug();
+    } catch (e, stackTrace) {
+      print('❌ ERROR al cargar promociones: $e');
+      print('Stack: $stackTrace');
+      _promociones = [];
     } finally {
       _setLoading(false);
-      notifyListeners();
-    }
-  }
-  
-  void _agregarPromocionDebug() {
-    print('🔧 Agregando promociones temporales (backend no tiene endpoint de promociones aún)...');
-    _promociones = [
-      PromocionSaludModel(
-        id: 'temp-001',
-        link: 'https://sasu.uagro.mx/consulta-general',
-        departamento: 'Consultorio Médico',
-        categoria: 'Consulta Médica',
-        programa: 'Atención Médica Estudiantil',
-        matricula: _carnet?.matricula ?? '15662',
-        destinatario: 'alumno',
-        autorizado: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-        createdBy: 'Dr. Sistema SASU',
-      ),
-      PromocionSaludModel(
-        id: 'temp-002',
-        link: 'https://sasu.uagro.mx/prevencion-salud',
-        departamento: 'Consultorio Médico',
-        categoria: 'Prevención',
-        programa: 'Campañas de Salud Preventiva',
-        matricula: _carnet?.matricula ?? '15662',
-        destinatario: 'alumno',
-        autorizado: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        createdBy: 'Dr. Sistema SASU',
-      ),
-    ];
-    print('✅ Promociones temporales agregadas: ${_promociones.length}');
-    for (var p in _promociones) {
-      print('   - ${p.titulo} (${p.departamento}, ${p.categoria})');
+      if (notifyWhenDone) {
+        notifyListeners();
+      }
+      print('📢 ============================================');
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carnet_digital_uagro/providers/session_provider.dart';
 import 'package:carnet_digital_uagro/models/carnet_model.dart';
+import 'package:carnet_digital_uagro/models/promocion_salud_model.dart';
 import 'package:carnet_digital_uagro/theme/uagro_theme.dart';
 import 'package:carnet_digital_uagro/screens/citas_screen.dart';
 import 'dart:ui';
@@ -40,7 +41,7 @@ class _CarnetScreenState extends State<CarnetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white, // Fondo blanco limpio
       appBar: AppBar(
         title: const Text('Carnet Digital UAGro', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
@@ -642,62 +643,110 @@ class _CarnetScreenState extends State<CarnetScreen> {
   Widget _buildPromocionesArea() {
     return Consumer<SessionProvider>(
       builder: (context, session, child) {
-        return _buildSectionCard(
-          title: 'PROMOCIONES DE SALUD',
-          icon: Icons.health_and_safety_rounded,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Promociones y campañas de salud especiales para ti',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
+            // Título de la sección
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1976D2), Color(0xFF1565C0)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1976D2).withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.health_and_safety_rounded, 
+                      color: Colors.white, 
+                      size: 24
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'PROMOCIONES DE SALUD',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF1F2937),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        Text(
+                          'Campañas especiales para tu bienestar',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
             
             if (session.promociones.isEmpty) ...[
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue[100]!),
-                ),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.health_and_safety_outlined,
-                      size: 48,
-                      color: Colors.blue[300],
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'No hay promociones disponibles',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.blue[100]!, width: 2),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.health_and_safety_outlined,
+                        size: 56,
+                        color: Colors.blue[400],
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Pronto tendremos nuevas promociones de salud para ti',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No hay promociones disponibles',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        'Pronto tendremos nuevas promociones de salud para ti',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ] else ...[
-              // 🎬 CARRUSEL ESTILO NETFLIX/PRIME
+              // 🎬 CARRUSEL DE PROMOCIONES COMPACTO
               SizedBox(
-                height: 200,
+                height: 320, // Reducido de 450 a 320
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: session.promociones.length,
                   itemBuilder: (context, index) {
                     final promocion = session.promociones[index];
@@ -711,22 +760,26 @@ class _CarnetScreenState extends State<CarnetScreen> {
               ),
               
               if (session.promociones.length > 1) ...[
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.swipe_left_rounded, 
-                         size: 16, 
-                         color: Colors.grey[400]),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Desliza para ver más promociones',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[500],
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.swipe_left_rounded, 
+                           size: 18, 
+                           color: Colors.grey[500]),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Desliza para ver más promociones',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ],
@@ -736,255 +789,370 @@ class _CarnetScreenState extends State<CarnetScreen> {
     );
   }
 
-  // 🎯 TARJETA ESTILO NETFLIX/PRIME
-  Widget _buildNetflixCard(promocion) {
-    final cardData = _getCardDesign(promocion.categoria);
+  // 🎯 TARJETA COLORIDA Y ATRACTIVA - CORREGIDA
+  Widget _buildNetflixCard(PromocionSaludModel promocion) {
+    // Verificar que promocion no sea null
+    if (promocion == null) return Container();
+    
+    final cardData = _getCardDesign(promocion.categoria ?? 'promoción');
+    final fechaCreacion = _parsearFecha(promocion.createdAt.toIso8601String());
+    final fechaExpiracion = _calcularExpiracion(promocion.createdAt.toIso8601String());
+    final diasRestantes = _calcularDiasRestantes(promocion.createdAt.toIso8601String());
     
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: cardData['primaryColor'].withOpacity(0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Material(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () => _abrirEnlaceDirecto(promocion),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // IMAGEN PREVIEW / HEADER CON GRADIENTE
-              Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  gradient: cardData['gradient'],
-                ),
-                child: Stack(
-                  children: [
-                    // Patrón de fondo
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        child: CustomPaint(
-                          painter: _PatternPainter(
-                            color: Colors.white.withOpacity(0.05),
-                          ),
-                        ),
-                      ),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  cardData['primaryColor'].withOpacity(0.02),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: cardData['primaryColor'].withOpacity(0.15),
+                width: 1.5,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // HEADER COMPACTO
+                Container(
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      topRight: Radius.circular(18),
                     ),
-                    
-                    // Contenido del header
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Badge de categoría
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1,
+                    gradient: cardData['gradient'],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Badge + Urgencia
+                        Row(
+                          children: [
+                            // Badge principal
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    cardData['icon'],
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    (promocion.categoria ?? 'Promoción').toUpperCase(),
+                                    style: TextStyle(
+                                      color: cardData['primaryColor'],
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  cardData['icon'],
-                                  style: const TextStyle(fontSize: 14),
+                            
+                            const Spacer(),
+                            
+                            // Badge de urgencia
+                            if (diasRestantes <= 3) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  promocion.categoria.toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                  ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.red.withOpacity(0.3),
+                                      blurRadius: 6,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          
-                          const Spacer(),
-                          
-                          // Título en el header
-                          Text(
-                            promocion.programa,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              height: 1.2,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black26,
-                                  blurRadius: 8,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      size: 12,
+                                      color: Colors.red[700],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '¡${diasRestantes}d!',
+                                      style: TextStyle(
+                                        color: Colors.red[700],
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                        
+                        const Spacer(),
+                        
+                        // Título compacto
+                        Text(
+                          promocion.programa ?? promocion.departamento ?? 'Promoción de Salud',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            height: 1.1,
+                            letterSpacing: 0.3,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black26,
+                                blurRadius: 6,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // CONTENIDO INFORMATIVO
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Departamento
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.business_outlined,
-                            size: 16,
-                            color: cardData['primaryColor'],
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            promocion.departamento,
-                            style: TextStyle(
-                              color: cardData['primaryColor'],
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 12),
-                      
-                      // Descripción
-                      Expanded(
-                        child: Text(
-                          promocion.descripcion.isNotEmpty 
-                            ? promocion.descripcion 
-                            : 'Conoce más sobre esta promoción de salud',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 14,
-                            height: 1.4,
-                          ),
-                          maxLines: 3,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Preview del enlace (si existe)
-                      if (promocion.link.isNotEmpty) ...[
+                      ],
+                    ),
+                  ),
+                ),
+                
+                // CONTENIDO COMPACTO
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // DEPARTAMENTO DESTACADO
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.grey[50],
+                            gradient: LinearGradient(
+                              colors: [
+                                cardData['primaryColor'],
+                                cardData['primaryColor'].withOpacity(0.8),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: cardData['primaryColor'].withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  cardData['icon'],
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  promocion.departamento ?? 'Departamento de Salud',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.3,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 12),
+                        
+                        // DESCRIPCIÓN (si existe)
+                        if (promocion.descripcion != null && promocion.descripcion.isNotEmpty) ...[
+                          Expanded(
+                            child: Text(
+                              promocion.descripcion,
+                              style: const TextStyle(
+                                color: Color(0xFF2C3E50),
+                                fontSize: 12,
+                                height: 1.4,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        
+                        // FECHAS COMPACTAS
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                cardData['primaryColor'].withOpacity(0.06),
+                                cardData['primaryColor'].withOpacity(0.12),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.grey[200]!,
+                              color: cardData['primaryColor'].withOpacity(0.2),
                               width: 1,
                             ),
                           ),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                Icons.link_rounded,
-                                size: 16,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _obtenerDominioDeLink(promocion.link),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w500,
+                              // Fecha de publicación
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_rounded,
+                                    size: 12,
+                                    color: cardData['primaryColor'],
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    fechaCreacion,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: cardData['primaryColor'],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Icon(
-                                Icons.open_in_new,
-                                size: 14,
-                                color: Colors.grey[500],
+                              // Días restantes
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: diasRestantes <= 3 
+                                    ? Colors.red[100] 
+                                    : cardData['primaryColor'].withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '$diasRestantes días',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: diasRestantes <= 3 ? Colors.red[700] : cardData['primaryColor'],
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
-                      ],
-                      
-                      // Botón de acción
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: () => _abrirEnlaceDirecto(promocion),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: cardData['primaryColor'],
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        
+                        const SizedBox(height: 12),
+                        
+                        // BOTÓN COMPACTO
+                        SizedBox(
+                          width: double.infinity,
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () => _abrirEnlaceDirecto(promocion),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: cardData['primaryColor'],
+                              foregroundColor: Colors.white,
+                              elevation: 2,
+                              shadowColor: cardData['primaryColor'].withOpacity(0.3),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.open_in_new_rounded,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Ver Detalles',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 14,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.info_outline,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                'Más información',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1005,6 +1173,63 @@ class _CarnetScreenState extends State<CarnetScreen> {
       return dominio;
     } catch (e) {
       return link.length > 30 ? '${link.substring(0, 30)}...' : link;
+    }
+  }
+  
+  // Función para parsear fecha de creación (CORREGIDA)
+  String _parsearFecha(String? fechaISO) {
+    if (fechaISO == null || fechaISO.isEmpty) {
+      return 'Reciente';
+    }
+    
+    try {
+      final fecha = DateTime.parse(fechaISO);
+      final meses = [
+        '', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+      ];
+      
+      return '${fecha.day} ${meses[fecha.month]} ${fecha.year}';
+    } catch (e) {
+      return 'Reciente';
+    }
+  }
+  
+  // Función para calcular fecha de expiración (CORREGIDA)
+  String _calcularExpiracion(String? fechaISO) {
+    if (fechaISO == null || fechaISO.isEmpty) {
+      return '7 días';
+    }
+    
+    try {
+      final fecha = DateTime.parse(fechaISO);
+      final expiracion = fecha.add(const Duration(days: 7));
+      final meses = [
+        '', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+      ];
+      
+      return '${expiracion.day} ${meses[expiracion.month]} ${expiracion.year}';
+    } catch (e) {
+      return '7 días';
+    }
+  }
+  
+  // Función para calcular días restantes (CORREGIDA)
+  int _calcularDiasRestantes(String? fechaISO) {
+    if (fechaISO == null || fechaISO.isEmpty) {
+      return 7; // Por defecto 7 días
+    }
+    
+    try {
+      final fecha = DateTime.parse(fechaISO);
+      final expiracion = fecha.add(const Duration(days: 7));
+      final ahora = DateTime.now();
+      final diferencia = expiracion.difference(ahora);
+      
+      return diferencia.inDays.clamp(0, 7); // Mínimo 0, máximo 7
+    } catch (e) {
+      return 7;
     }
   }
   
@@ -1460,6 +1685,18 @@ class _CarnetScreenState extends State<CarnetScreen> {
           ),
           'primaryColor': const Color(0xFFD32F2F),
           'icon': '🚨',
+        };
+      case 'promoción':
+      case 'promociones':
+        return {
+          'gradient': const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF2196F3), Color(0xFF1976D2), Color(0xFF1565C0)],
+            stops: [0.0, 0.7, 1.0],
+          ),
+          'primaryColor': const Color(0xFF1976D2),
+          'icon': '📢',
         };
       case 'información del sistema':
       default:
