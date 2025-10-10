@@ -22,6 +22,9 @@ class CarnetScreen extends StatefulWidget {
 
 class _CarnetScreenState extends State<CarnetScreen> {
   bool _isExpanded = true;
+  
+  // 🎯 ESTADO HOVER PARA PROMOCIONES
+  Set<String> _hoveredCards = <String>{};
 
   @override
   void initState() {
@@ -36,6 +39,30 @@ class _CarnetScreenState extends State<CarnetScreen> {
     setState(() {
       _isExpanded = !_isExpanded;
     });
+  }
+
+  // 🎯 FUNCIÓN PARA MANEJAR HOVER EN CARDS
+  void _onCardHover(String promocionId, bool isHovering) {
+    setState(() {
+      if (isHovering) {
+        _hoveredCards.add(promocionId);
+      } else {
+        _hoveredCards.remove(promocionId);
+      }
+    });
+  }
+
+  // 📱 DETECCIÓN DE DISPOSITIVO MÓVIL
+  bool _isMobileDevice(BuildContext context) {
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    return mediaQuery.size.width < 600 || 
+           mediaQuery.orientation == Orientation.portrait;
+  }
+  
+  // ⚡ OPTIMIZACIÓN DE PERFORMANCE PARA MÓVIL
+  bool _shouldReduceAnimations(BuildContext context) {
+    return _isMobileDevice(context) || 
+           MediaQuery.of(context).disableAnimations;
   }
 
   @override
@@ -646,140 +673,310 @@ class _CarnetScreenState extends State<CarnetScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título de la sección
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1976D2), Color(0xFF1565C0)],
+            // Título de la sección RESPONSIVO
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = constraints.maxWidth < 600;
+                
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 16 : 20,
+                    0,
+                    isMobile ? 16 : 20,
+                    isMobile ? 12 : 16,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(isMobile ? 10 : 12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF1976D2), Color(0xFF1565C0)],
+                          ),
+                          borderRadius: BorderRadius.circular(isMobile ? 10 : 12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1976D2).withOpacity(0.3),
+                              blurRadius: isMobile ? 6 : 8,
+                              offset: Offset(0, isMobile ? 3 : 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.health_and_safety_rounded,
+                          color: Colors.white,
+                          size: isMobile ? 20 : 24,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1976D2).withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                      SizedBox(width: isMobile ? 12 : 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isMobile ? 'PROMOCIONES' : 'PROMOCIONES DE SALUD',
+                              style: TextStyle(
+                                fontSize: isMobile ? 16 : 18,
+                                fontWeight: FontWeight.w900,
+                                color: const Color(0xFF1F2937),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            if (!isMobile || constraints.maxWidth > 350) ...[
+                              Text(
+                                isMobile 
+                                    ? 'Campañas para tu bienestar'
+                                    : 'Campañas especiales para tu bienestar',
+                                style: TextStyle(
+                                  fontSize: isMobile ? 11 : 13,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.health_and_safety_rounded, 
-                      color: Colors.white, 
-                      size: 24
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'PROMOCIONES DE SALUD',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF1F2937),
-                            letterSpacing: 0.5,
+                      ),
+                      
+                      // Badge de contador en móvil
+                      if (isMobile && session.promociones.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1976D2).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFF1976D2).withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            '${session.promociones.length}',
+                            style: const TextStyle(
+                              color: Color(0xFF1976D2),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                        Text(
-                          'Campañas especiales para tu bienestar',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                       ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             
+            // Estado vacío RESPONSIVO
             if (session.promociones.isEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.blue[100]!, width: 2),
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.health_and_safety_outlined,
-                        size: 56,
-                        color: Colors.blue[400],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'No hay promociones disponibles',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 600;
+                  
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 20),
+                    child: Container(
+                      padding: EdgeInsets.all(isMobile ? 20 : 24),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
+                        border: Border.all(
+                          color: Colors.blue[100]!,
+                          width: isMobile ? 1.5 : 2,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Pronto tendremos nuevas promociones de salud para ti',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                        textAlign: TextAlign.center,
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.health_and_safety_outlined,
+                            size: isMobile ? 48 : 56,
+                            color: Colors.blue[400],
+                          ),
+                          SizedBox(height: isMobile ? 12 : 16),
+                          Text(
+                            'No hay promociones disponibles',
+                            style: TextStyle(
+                              fontSize: isMobile ? 16 : 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: isMobile ? 6 : 8),
+                          Text(
+                            isMobile 
+                                ? 'Pronto tendremos nuevas promociones para ti'
+                                : 'Pronto tendremos nuevas promociones de salud para ti',
+                            style: TextStyle(
+                              fontSize: isMobile ? 12 : 14,
+                              color: Colors.grey[600],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ] else ...[
-              // 🎬 CARRUSEL DE PROMOCIONES COMPACTO
-              SizedBox(
-                height: 320, // Reducido de 450 a 320
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: session.promociones.length,
-                  itemBuilder: (context, index) {
-                    final promocion = session.promociones[index];
-                    return Container(
-                      width: 320,
-                      margin: const EdgeInsets.only(right: 16),
-                      child: _buildNetflixCard(promocion),
-                    );
-                  },
-                ),
+              // 🎬 CARRUSEL DE PROMOCIONES RESPONSIVO PARA MÓVIL
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // Calcular dimensiones según el ancho de pantalla
+                  final screenWidth = constraints.maxWidth;
+                  final isMobile = screenWidth < 600;
+                  final isTablet = screenWidth >= 600 && screenWidth < 1024;
+                  
+                  // Configuraciones responsivas
+                  double cardWidth;
+                  double cardHeight;
+                  double horizontalPadding;
+                  double cardMargin;
+                  
+                  if (isMobile) {
+                    // Móvil: Tarjetas más anchas, menos margen
+                    cardWidth = screenWidth * 0.85; // 85% del ancho de pantalla
+                    cardHeight = 280; // Más compacto
+                    horizontalPadding = 16;
+                    cardMargin = 12;
+                  } else if (isTablet) {
+                    // Tablet: Tamaño intermedio
+                    cardWidth = screenWidth * 0.6;
+                    cardHeight = 300;
+                    horizontalPadding = 20;
+                    cardMargin = 16;
+                  } else {
+                    // Desktop: Tamaño original
+                    cardWidth = 320;
+                    cardHeight = 320;
+                    horizontalPadding = 20;
+                    cardMargin = 16;
+                  }
+                  
+                  return SizedBox(
+                    height: cardHeight,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      physics: const BouncingScrollPhysics(), // Mejor para móvil
+                      itemCount: session.promociones.length,
+                      itemBuilder: (context, index) {
+                        final promocion = session.promociones[index];
+                        return Container(
+                          width: cardWidth,
+                          margin: EdgeInsets.only(right: cardMargin),
+                          child: _buildMobileOptimizedCard(promocion, isMobile),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
               
+              // 📱 INDICADORES DE NAVEGACIÓN OPTIMIZADOS PARA MÓVIL
               if (session.promociones.length > 1) ...[
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.swipe_left_rounded, 
-                           size: 18, 
-                           color: Colors.grey[500]),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Desliza para ver más promociones',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isMobile = constraints.maxWidth < 600;
+                    
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 16 : 20,
+                        vertical: isMobile ? 12 : 16,
                       ),
-                    ],
-                  ),
+                      child: Column(
+                        children: [
+                          // Indicador de progreso/dots para móvil
+                          if (isMobile) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                session.promociones.length.clamp(0, 5), // Máximo 5 dots
+                                (index) => Container(
+                                  width: 8,
+                                  height: 8,
+                                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                                  decoration: BoxDecoration(
+                                    color: index == 0 
+                                        ? const Color(0xFF1976D2) 
+                                        : Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          
+                          // Instrucciones de navegación
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isMobile ? 12 : 16,
+                              vertical: isMobile ? 8 : 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isMobile 
+                                  ? const Color(0xFF1976D2).withOpacity(0.1)
+                                  : Colors.grey[50],
+                              borderRadius: BorderRadius.circular(isMobile ? 12 : 20),
+                              border: Border.all(
+                                color: isMobile 
+                                    ? const Color(0xFF1976D2).withOpacity(0.2)
+                                    : Colors.grey[200]!,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  isMobile 
+                                      ? Icons.swipe_left_rounded 
+                                      : Icons.swipe_left_rounded,
+                                  size: isMobile ? 20 : 18,
+                                  color: isMobile 
+                                      ? const Color(0xFF1976D2) 
+                                      : Colors.grey[500],
+                                ),
+                                SizedBox(width: isMobile ? 8 : 8),
+                                Text(
+                                  isMobile 
+                                      ? 'Desliza para más' 
+                                      : 'Desliza para ver más promociones',
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 12 : 12,
+                                    color: isMobile 
+                                        ? const Color(0xFF1976D2) 
+                                        : Colors.grey[600],
+                                    fontWeight: isMobile ? FontWeight.w600 : FontWeight.w500,
+                                  ),
+                                ),
+                                if (isMobile && session.promociones.length > 1) ...[
+                                  SizedBox(width: isMobile ? 8 : 0),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1976D2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '+${session.promociones.length - 1}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ],
@@ -799,29 +996,43 @@ class _CarnetScreenState extends State<CarnetScreen> {
     final fechaExpiracion = _calcularExpiracion(promocion.createdAt.toIso8601String());
     final diasRestantes = _calcularDiasRestantes(promocion.createdAt.toIso8601String());
     
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: cardData['primaryColor'].withOpacity(0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+    // 🎯 Verificar si esta tarjeta está en hover
+    final promocionId = promocion.id ?? DateTime.now().millisecondsSinceEpoch.toString();
+    final isHovered = _hoveredCards.contains(promocionId);
+    
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => _onCardHover(promocionId, true),
+      onExit: (_) => _onCardHover(promocionId, false),
+      child: GestureDetector(
+        onTap: () => _abrirEnlaceDirecto(promocion),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+          transform: isHovered ? (Matrix4.identity()..scale(1.015)) : Matrix4.identity(),
+          child: Stack(
+            children: [
+              // 🎨 TARJETA PRINCIPAL
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: cardData['primaryColor'].withOpacity(isHovered ? 0.15 : 0.08),
+                    blurRadius: isHovered ? 12 : 8,
+                    offset: Offset(0, isHovered ? 6 : 4),
+                  ),
+                ],
+              ),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: () => _abrirEnlaceDirecto(promocion),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
                   Colors.white,
                   cardData['primaryColor'].withOpacity(0.02),
                 ],
@@ -1155,6 +1366,781 @@ class _CarnetScreenState extends State<CarnetScreen> {
             ),
           ),
         ),
+            ), // Cerrar Container principal
+            
+            // 🎯 OVERLAY DE PREVIEW (Solo aparece en hover)
+            if (isHovered)
+              Positioned.fill(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: isHovered ? 1.0 : 0.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.60),
+                          Colors.black.withOpacity(0.75),
+                        ],
+                      ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // 🖼️ IMAGEN DE LA PROMOCIÓN (Si existe)
+                              if (promocion.imagenUrl != null && promocion.imagenUrl!.isNotEmpty)
+                                Container(
+                                  width: 80,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    image: DecorationImage(
+                                      image: NetworkImage(promocion.imagenUrl!),
+                                      fit: BoxFit.cover,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else
+                                // 🎯 ICONO DE PREVIEW SI NO HAY IMAGEN
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: cardData['primaryColor'],
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: cardData['primaryColor'].withOpacity(0.6),
+                                        blurRadius: 20,
+                                        spreadRadius: 3,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.preview_rounded,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                              
+                              const SizedBox(height: 12),
+                              
+                              // 🎯 TÍTULO PRINCIPAL
+                              Text(
+                                promocion.titulo ?? promocion.programa ?? 'Promoción de Salud',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              
+                              const SizedBox(height: 8),
+                              
+                              // 🎯 RESUMEN/DESCRIPCIÓN
+                              Text(
+                                promocion.resumen ?? promocion.descripcionCompleta ?? 'Haz clic para ver más detalles',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              
+                              const SizedBox(height: 10),
+                              
+                              // 🔗 PREVIEW DEL LINK
+                              if (promocion.link != null && promocion.link!.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(
+                                      color: cardData['primaryColor'].withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.link_rounded,
+                                        color: cardData['primaryColor'],
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          _obtenerDominioDeLink(promocion.link!),
+                                          style: TextStyle(
+                                            color: cardData['primaryColor'],
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              
+                              const SizedBox(height: 12),
+                              
+                              // 🎯 STATS COMPACTAS
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildCompactStat(
+                                    Icons.schedule_rounded,
+                                    '${diasRestantes}d',
+                                    cardData['primaryColor'],
+                                  ),
+                                  _buildCompactStat(
+                                    Icons.category_rounded,
+                                    promocion.categoria.substring(0, 3).toUpperCase(),
+                                    cardData['primaryColor'],
+                                  ),
+                                  if (promocion.urgente)
+                                    _buildCompactStat(
+                                      Icons.priority_high_rounded,
+                                      'URGENTE',
+                                      Colors.red,
+                                    )
+                                  else
+                                    _buildCompactStat(
+                                      Icons.local_hospital_rounded,
+                                      'SASU',
+                                      cardData['primaryColor'],
+                                    ),
+                                ],
+                              ),
+                              
+                              const SizedBox(height: 12),
+                              
+                              // 🎯 CALL TO ACTION MEJORADO
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      cardData['primaryColor'],
+                                      cardData['primaryColor'].withOpacity(0.8),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: cardData['primaryColor'].withOpacity(0.4),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.open_in_new_rounded,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Abrir Promoción',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                  ),
+                ),
+              ),
+          ],
+        ), // Cerrar Stack
+      ), // Cerrar AnimatedContainer
+    ), // Cerrar GestureDetector
+    ); // Cerrar MouseRegion
+  }
+
+  // 📱 TARJETA OPTIMIZADA PARA MÓVIL
+  Widget _buildMobileOptimizedCard(PromocionSaludModel promocion, bool isMobile) {
+    // Verificar que promocion no sea null
+    if (promocion == null) return Container();
+    
+    final cardData = _getCardDesign(promocion.categoria ?? 'promoción');
+    final fechaCreacion = _parsearFecha(promocion.createdAt.toIso8601String());
+    final fechaExpiracion = _calcularExpiracion(promocion.createdAt.toIso8601String());
+    final diasRestantes = _calcularDiasRestantes(promocion.createdAt.toIso8601String());
+    
+    // 🎯 Verificar si esta tarjeta está en hover/touch
+    final promocionId = promocion.id ?? DateTime.now().millisecondsSinceEpoch.toString();
+    final isHovered = _hoveredCards.contains(promocionId);
+    
+    return GestureDetector(
+      onTap: () => _abrirEnlaceDirecto(promocion),
+      onTapDown: isMobile ? (_) => _onCardHover(promocionId, true) : null,
+      onTapUp: isMobile ? (_) => _onCardHover(promocionId, false) : null,
+      onTapCancel: isMobile ? () => _onCardHover(promocionId, false) : null,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: !isMobile ? (_) => _onCardHover(promocionId, true) : null,
+        onExit: !isMobile ? (_) => _onCardHover(promocionId, false) : null,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: isMobile ? 200 : 400),
+          curve: Curves.easeOutCubic,
+          transform: isHovered ? (Matrix4.identity()..scale(isMobile ? 1.02 : 1.015)) : Matrix4.identity(),
+          child: Stack(
+            children: [
+              // 🎨 TARJETA PRINCIPAL MÓVIL
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cardData['primaryColor'].withOpacity(isHovered ? 0.2 : 0.1),
+                      blurRadius: isHovered ? 8 : 4,
+                      offset: Offset(0, isHovered ? 4 : 2),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white,
+                          cardData['primaryColor'].withOpacity(0.02),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+                      border: Border.all(
+                        color: cardData['primaryColor'].withOpacity(0.15),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // HEADER COMPACTO PARA MÓVIL
+                        Container(
+                          height: isMobile ? 80 : 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(isMobile ? 14 : 18),
+                              topRight: Radius.circular(isMobile ? 14 : 18),
+                            ),
+                            gradient: cardData['gradient'],
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(isMobile ? 12 : 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Badge + Urgencia (más compacto en móvil)
+                                Row(
+                                  children: [
+                                    // Badge principal
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: isMobile ? 8 : 12,
+                                        vertical: isMobile ? 4 : 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.1),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            cardData['icon'],
+                                            style: TextStyle(fontSize: isMobile ? 12 : 14),
+                                          ),
+                                          SizedBox(width: isMobile ? 4 : 6),
+                                          Text(
+                                            (promocion.categoria ?? 'Promoción').toUpperCase(),
+                                            style: TextStyle(
+                                              color: cardData['primaryColor'],
+                                              fontSize: isMobile ? 8 : 10,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    
+                                    const Spacer(),
+                                    
+                                    // Badge de urgencia (más visible en móvil)
+                                    if (diasRestantes <= 3) ...[
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: isMobile ? 6 : 8,
+                                          vertical: isMobile ? 3 : 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(isMobile ? 10 : 12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.red.withOpacity(0.3),
+                                              blurRadius: 6,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.access_time,
+                                              size: isMobile ? 10 : 12,
+                                              color: Colors.red[700],
+                                            ),
+                                            SizedBox(width: isMobile ? 2 : 4),
+                                            Text(
+                                              '¡${diasRestantes}d!',
+                                              style: TextStyle(
+                                                color: Colors.red[700],
+                                                fontSize: isMobile ? 8 : 10,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                
+                                const Spacer(),
+                                
+                                // Título compacto para móvil
+                                Text(
+                                  promocion.programa ?? promocion.departamento ?? 'Promoción de Salud',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isMobile ? 14 : 16,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.1,
+                                    letterSpacing: 0.3,
+                                    shadows: const [
+                                      Shadow(
+                                        color: Colors.black26,
+                                        blurRadius: 6,
+                                      ),
+                                    ],
+                                  ),
+                                  maxLines: isMobile ? 1 : 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        
+                        // CONTENIDO COMPACTO PARA MÓVIL
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(isMobile ? 12 : 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // DEPARTAMENTO DESTACADO (más compacto)
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isMobile ? 8 : 12,
+                                    vertical: isMobile ? 6 : 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        cardData['primaryColor'],
+                                        cardData['primaryColor'].withOpacity(0.8),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(isMobile ? 10 : 12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: cardData['primaryColor'].withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(isMobile ? 4 : 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(isMobile ? 6 : 8),
+                                        ),
+                                        child: Text(
+                                          cardData['icon'],
+                                          style: TextStyle(fontSize: isMobile ? 12 : 16),
+                                        ),
+                                      ),
+                                      SizedBox(width: isMobile ? 8 : 10),
+                                      Expanded(
+                                        child: Text(
+                                          promocion.departamento ?? 'Departamento de Salud',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: isMobile ? 11 : 13,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.3,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                
+                                SizedBox(height: isMobile ? 8 : 12),
+                                
+                                // DESCRIPCIÓN (más corta en móvil)
+                                if (promocion.descripcion != null && promocion.descripcion.isNotEmpty) ...[
+                                  Expanded(
+                                    child: Text(
+                                      promocion.descripcion,
+                                      style: TextStyle(
+                                        color: const Color(0xFF2C3E50),
+                                        fontSize: isMobile ? 11 : 12,
+                                        height: 1.4,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: isMobile ? 1 : 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  SizedBox(height: isMobile ? 8 : 12),
+                                ],
+                                
+                                // FECHAS COMPACTAS PARA MÓVIL
+                                Container(
+                                  padding: EdgeInsets.all(isMobile ? 8 : 10),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        cardData['primaryColor'].withOpacity(0.06),
+                                        cardData['primaryColor'].withOpacity(0.12),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(isMobile ? 8 : 10),
+                                    border: Border.all(
+                                      color: cardData['primaryColor'].withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Fecha de publicación
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.calendar_today_rounded,
+                                              size: isMobile ? 10 : 12,
+                                              color: cardData['primaryColor'],
+                                            ),
+                                            SizedBox(width: isMobile ? 3 : 4),
+                                            Expanded(
+                                              child: Text(
+                                                fechaCreacion,
+                                                style: TextStyle(
+                                                  fontSize: isMobile ? 9 : 10,
+                                                  color: cardData['primaryColor'],
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      
+                                      SizedBox(width: isMobile ? 8 : 16),
+                                      
+                                      // Días restantes (más prominente en móvil)
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: isMobile ? 6 : 8,
+                                          vertical: isMobile ? 2 : 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: diasRestantes <= 3 
+                                              ? Colors.red[100] 
+                                              : cardData['primaryColor'].withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(isMobile ? 6 : 8),
+                                        ),
+                                        child: Text(
+                                          '${diasRestantes}d',
+                                          style: TextStyle(
+                                            fontSize: isMobile ? 9 : 10,
+                                            color: diasRestantes <= 3 
+                                                ? Colors.red[700] 
+                                                : cardData['primaryColor'],
+                                            fontWeight: FontWeight.w900,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                
+                                // Botón de acción más grande para móvil
+                                if (isMobile) ...[
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    width: double.infinity,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      gradient: cardData['gradient'],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'VER PROMOCIÓN',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              // 🎯 OVERLAY DE PREVIEW SIMPLIFICADO PARA MÓVIL
+              if (isHovered && !isMobile)
+                Positioned.fill(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 250),
+                    opacity: isHovered ? 1.0 : 0.0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.50),
+                            Colors.black.withOpacity(0.70),
+                          ],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 🖼️ IMAGEN DE LA PROMOCIÓN (Si existe)
+                            if (promocion.imagenUrl != null && promocion.imagenUrl!.isNotEmpty)
+                              Container(
+                                width: 60,
+                                height: 45,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  image: DecorationImage(
+                                    image: NetworkImage(promocion.imagenUrl!),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            
+                            const SizedBox(height: 8),
+                            
+                            // 📋 TÍTULO DEL PREVIEW
+                            Text(
+                              promocion.titulo ?? 'Vista previa no disponible',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            
+                            const SizedBox(height: 6),
+                            
+                            // 🔗 ENLACE SIMPLIFICADO
+                            if (promocion.link != null && promocion.link!.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  _obtenerDominioDeLink(promocion.link!),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            
+                            const SizedBox(height: 8),
+                            
+                            // 🎯 BOTÓN DE ACCIÓN
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: cardData['primaryColor'],
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: cardData['primaryColor'].withOpacity(0.3),
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.open_in_new_rounded,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'ABRIR',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 🎯 HELPER PARA STATS RÁPIDAS EN PREVIEW
+  Widget _buildQuickStat(IconData icon, String value, String label) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: Colors.white,
+          size: 20,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 10,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 🎯 HELPER PARA STATS COMPACTAS
+  Widget _buildCompactStat(IconData icon, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 14,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
