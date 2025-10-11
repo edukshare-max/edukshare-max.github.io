@@ -225,8 +225,9 @@ class ApiService {
         } else {
           throw Exception('INVALID_RESPONSE: Respuesta sin datos de carnet válidos');
         }
-      } else if (response.statusCode == 401) {
-        throw Exception('AUTH_ERROR: Token inválido o expirado');
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        print('🚫 Token inválido detectado - limpiando sesión');
+        throw Exception('INVALID_TOKEN: Token inválido o expirado');
       } else if (response.statusCode == 404) {
         throw Exception('NOT_FOUND: Carnet no encontrado');
       } else if (response.statusCode == 500) {

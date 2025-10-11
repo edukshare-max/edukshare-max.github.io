@@ -234,7 +234,14 @@ class SessionProvider extends ChangeNotifier {
         print('❌ No se pudo cargar el carnet');
       }
     } catch (e) {
-      print('❌ Error cargando carnet: $e');
+      final errorStr = e.toString();
+      if (errorStr.contains('INVALID_TOKEN')) {
+        print('🚫 Token inválido detectado - cerrando sesión automáticamente');
+        await clearCache();
+        logout();
+      } else {
+        print('❌ Error cargando carnet: $e');
+      }
     }
   }
 
@@ -261,9 +268,15 @@ class SessionProvider extends ChangeNotifier {
       
       // NO llamar notifyListeners() aquí - se llamará al final del login
     } catch (e) {
-      print('❌ ERROR CARGANDO CITAS: $e');
-      _citas = [];
-      notifyListeners();
+      final errorStr = e.toString();
+      if (errorStr.contains('INVALID_TOKEN')) {
+        print('🚫 Token inválido detectado - cerrando sesión automáticamente');
+        await clearCache();
+        logout();
+      } else {
+        print('❌ ERROR CARGANDO CITAS: $e');
+        _citas = [];
+      }
     }
   }
 
