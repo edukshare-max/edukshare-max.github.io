@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:carnet_digital_uagro/models/carnet_model.dart';
 import 'package:carnet_digital_uagro/models/cita_model.dart';
 import 'package:carnet_digital_uagro/models/promocion_salud_model.dart';
+import 'package:carnet_digital_uagro/models/vacuna_model.dart';
 import 'package:carnet_digital_uagro/services/api_service.dart';
 
 class SessionProvider extends ChangeNotifier {
@@ -19,6 +20,7 @@ class SessionProvider extends ChangeNotifier {
   CarnetModel? _carnet;
   List<CitaModel> _citas = [];
   List<PromocionSaludModel> _promociones = [];
+  List<VacunaModel> _vacunas = [];
   
   // Estado del backend
   bool _backendHealthy = true;
@@ -34,6 +36,7 @@ class SessionProvider extends ChangeNotifier {
   CarnetModel? get carnet => _carnet;
   List<CitaModel> get citas => _citas;
   List<PromocionSaludModel> get promociones => _promociones;
+  List<VacunaModel> get vacunas => _vacunas;
   bool get backendHealthy => _backendHealthy;
   String? get backendMessage => _backendMessage;
   int? get backendResponseTime => _backendResponseTime;
@@ -96,6 +99,7 @@ class SessionProvider extends ChangeNotifier {
       // Cargar datos frescos en background
       _loadCarnetData();
       _loadCitasData();
+      _loadVacunasData();
       loadPromociones(notifyWhenDone: false);
       
       notifyListeners();
@@ -171,6 +175,7 @@ class SessionProvider extends ChangeNotifier {
         // Cargar todos los datos SIN notificar en cada paso
         await _loadCarnetData();
         await _loadCitasData();
+        await _loadVacunasData();
         await loadPromociones(notifyWhenDone: false);
         
         // Guardar sesión en caché
@@ -284,6 +289,48 @@ class SessionProvider extends ChangeNotifier {
   Future<void> loadCitas() async {
     _setLoading(true);
     await _loadCitasData();
+    _setLoading(false);
+  }
+
+  // 💉 CARGAR VACUNAS - BACKEND REAL SASU
+  Future<void> _loadVacunasData() async {
+    if (_token == null) return;
+
+    try {
+      print('🔍 Cargando vacunas desde SASU backend...');
+      final data = await ApiService.getVacunas(_token!);
+      
+      if (data.isNotEmpty) {
+        _vacunas = data;
+        print('✅ VACUNAS REALES CARGADAS: ${_vacunas.length} registros');
+        
+        // Debug: mostrar primera vacuna
+        if (_vacunas.isNotEmpty) {
+          print('💉 PRIMERA VACUNA: ${_vacunas.first}');
+        }
+      } else {
+        print('⚠️ NO HAY VACUNAS DISPONIBLES EN EL BACKEND SASU');
+        _vacunas = [];
+      }
+      
+      // NO llamar notifyListeners() aquí - se llamará al final del login
+    } catch (e) {
+      final errorStr = e.toString();
+      if (errorStr.contains('INVALID_TOKEN')) {
+        print('🚫 Token inválido detectado - cerrando sesión automáticamente');
+        await clearCache();
+        logout();
+      } else {
+        print('❌ ERROR CARGANDO VACUNAS: $e');
+        _vacunas = [];
+      }
+    }
+  }
+
+  // Método público para recargar vacunas
+  Future<void> loadVacunas() async {
+    _setLoading(true);
+    await _loadVacunasData();
     _setLoading(false);
   }
 

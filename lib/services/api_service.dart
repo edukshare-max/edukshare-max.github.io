@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:carnet_digital_uagro/models/carnet_model.dart';
 import 'package:carnet_digital_uagro/models/cita_model.dart';
 import 'package:carnet_digital_uagro/models/promocion_salud_model.dart';
+import 'package:carnet_digital_uagro/models/vacuna_model.dart';
 
 class ApiService {
   // 🌐 BACKEND PRODUCCIÓN EN RENDER
@@ -402,5 +403,75 @@ class ApiService {
   static Future<bool> marcarPromocionVista(String token, String promocionId) async {
     // Este método está deprecado, usar registrarClickPromocion en su lugar
     return registrarClickPromocion(token, promocionId);
+  }
+
+  // 💉 OBTENER VACUNAS DEL ESTUDIANTE - CON REINTENTOS
+  static Future<List<VacunaModel>> getVacunas(String token) async {
+    final result = await _retryWithBackoff<List<VacunaModel>>(
+      () => _performGetVacunas(token),
+      maxAttempts: maxRetries,
+      operationName: 'obtener vacunas',
+    );
+    return result ?? [];
+  }
+
+  // 💉 IMPLEMENTACIÓN DE OBTENCIÓN DE VACUNAS
+  static Future<List<VacunaModel>> _performGetVacunas(String token) async {
+    try {
+      final url = Uri.parse('$baseUrl/me/vacunas');
+      
+      print('🔍 GET VACUNAS REQUEST: $url');
+      print('🔑 TOKEN: ${token.substring(0, 20)}...');
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(
+        normalTimeout,
+        onTimeout: () {
+          throw Exception('TIMEOUT: Timeout obteniendo vacunas');
+        },
+      );
+      
+      print('📊 VACUNAS RESPONSE: ${response.statusCode}');
+      print('📋 RESPONSE BODY: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        
+        if (data['success'] == true && data['data'] != null) {
+          final List<dynamic> vacunasJson = data['data'];
+          final vacunas = vacunasJson.map((json) => VacunaModel.fromJson(json)).toList();
+          print('✅ VACUNAS OBTENIDAS: ${vacunas.length} registros');
+          return vacunas;
+        } else {
+          print('⚠️ RESPUESTA SIN DATOS DE VACUNAS');
+          return [];
+        }
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        print('🚫 Token inválido detectado - limpiando sesión');
+        throw Exception('INVALID_TOKEN: Token inválido o expirado');
+      } else if (response.statusCode == 404) {
+        print('📭 No hay vacunas registradas');
+        return [];
+      } else {
+        print('❌ ERROR HTTP: ${response.statusCode}');
+        return [];
+      }
+      
+    } catch (e) {
+      print('❌ GET VACUNAS ERROR: $e');
+      
+      // Si es error de token, propagarlo
+      if (e.toString().contains('INVALID_TOKEN')) {
+        rethrow;
+      }
+      
+      // Para otros errores, retornar lista vacía
+      return [];
+    }
   }
 }

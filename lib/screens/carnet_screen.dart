@@ -4199,6 +4199,36 @@ class _CarnetScreenState extends State<CarnetScreen> {
             );
           },
         ),
+        
+        // 💉 VACUNACIÓN
+        ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.vaccines_rounded, color: Colors.green, size: 20),
+          ),
+          title: const Text(
+            'Tarjeta de Vacunación',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: Consumer<SessionProvider>(
+            builder: (context, session, child) {
+              final count = session.vacunas.length;
+              return Text(
+                count > 0 ? '$count vacunas registradas' : 'Sin registros',
+                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+              );
+            },
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
+          onTap: () {
+            Navigator.pop(context); // Cerrar drawer
+            Navigator.pushNamed(context, '/vacunas');
+          },
+        ),
       ],
     );
   }
