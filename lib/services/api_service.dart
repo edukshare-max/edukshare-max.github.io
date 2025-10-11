@@ -2,6 +2,7 @@
 // Con reintentos automáticos, timeouts inteligentes y manejo de errores profesional
 
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:carnet_digital_uagro/models/carnet_model.dart';
 import 'package:carnet_digital_uagro/models/cita_model.dart';
@@ -183,13 +184,21 @@ class ApiService {
     return 'UNKNOWN_ERROR';
   }
   
-  // 🎓 OBTENER DATOS DEL CARNET CON JWT
+  // 🎓 OBTENER DATOS DEL CARNET CON JWT - CON REINTENTOS
   static Future<CarnetModel?> getMyCarnet(String token) async {
+    return await _retryWithBackoff<CarnetModel>(
+      () => _performGetCarnet(token),
+      operationName: 'obtener carnet',
+    );
+  }
+  
+  // 🔐 IMPLEMENTACIÓN INTERNA DE GET CARNET
+  static Future<CarnetModel> _performGetCarnet(String token) async {
     try {
       final url = Uri.parse('$baseUrl/me/carnet');
       
       print('🔍 GET CARNET REQUEST: $url');
-      print('🔑 TOKEN: ${token.substring(0, 20)}...');
+      print('🔑 TOKEN: ${token.substring(0, min(20, token.length))}...');
       
       final response = await http.get(
         url,
@@ -197,22 +206,38 @@ class ApiService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
+      ).timeout(
+        normalTimeout,
+        onTimeout: () {
+          throw Exception('TIMEOUT: Timeout obteniendo carnet');
+        },
       );
       
       print('📊 CARNET RESPONSE: ${response.statusCode}');
-      print('📋 RESPONSE BODY: ${response.body}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print('📋 RESPONSE DATA: ${data}');
+        
         if (data['success'] == true && data['data'] != null) {
+          print('✅ Carnet obtenido exitosamente');
           return CarnetModel.fromJson(data['data']);
+        } else {
+          throw Exception('INVALID_RESPONSE: Respuesta sin datos de carnet válidos');
         }
+      } else if (response.statusCode == 401) {
+        throw Exception('AUTH_ERROR: Token inválido o expirado');
+      } else if (response.statusCode == 404) {
+        throw Exception('NOT_FOUND: Carnet no encontrado');
+      } else if (response.statusCode == 500) {
+        throw Exception('SERVER_ERROR: Error interno del servidor');
+      } else {
+        throw Exception('HTTP_ERROR: Status code ${response.statusCode}');
       }
       
-      return null;
     } catch (e) {
       print('❌ GET CARNET ERROR: $e');
-      return null;
+      rethrow; // Propagar para que el retry maneje
     }
   }
   
