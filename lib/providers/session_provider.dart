@@ -1,7 +1,9 @@
-// 🔐 PROVIDER DE SESIÓN - SIN SQLITE, SOLO MEMORIA
-// Estado global de la aplicación
+// 🔐 PROVIDER DE SESIÓN - CON CACHÉ Y MANEJO ROBUSTO DE ERRORES
+// Estado global de la aplicación con persistencia local
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'package:carnet_digital_uagro/models/carnet_model.dart';
 import 'package:carnet_digital_uagro/models/cita_model.dart';
 import 'package:carnet_digital_uagro/models/promocion_salud_model.dart';
@@ -13,18 +15,33 @@ class SessionProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _token;
   String? _error;
+  String? _errorType; // NUEVO: Tipo específico de error
   CarnetModel? _carnet;
   List<CitaModel> _citas = [];
   List<PromocionSaludModel> _promociones = [];
+  
+  // Estado del backend
+  bool _backendHealthy = true;
+  String? _backendMessage;
+  int? _backendResponseTime;
 
   // Getters
   bool get isAuthenticated => _isLoggedIn;
   bool get isLoading => _isLoading;
   String? get token => _token;
   String? get error => _error;
+  String? get errorType => _errorType;
   CarnetModel? get carnet => _carnet;
   List<CitaModel> get citas => _citas;
   List<PromocionSaludModel> get promociones => _promociones;
+  bool get backendHealthy => _backendHealthy;
+  String? get backendMessage => _backendMessage;
+  int? get backendResponseTime => _backendResponseTime;
+
+  // 🔧 KEYS PARA SHARED PREFERENCES
+  static const String _keyToken = 'auth_token';
+  static const String _keyCarnet = 'cached_carnet';
+  static const String _keyLoginTime = 'login_timestamp';
 
   // Setters internos
   void _setLoading(bool loading) {
@@ -32,12 +49,109 @@ class SessionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setError(String? error) {
+  void _setError(String? error, [String? type]) {
     _error = error;
+    _errorType = type;
+    notifyListeners();
+  }
+  
+  void _setBackendStatus(bool healthy, String? message, int? responseTime) {
+    _backendHealthy = healthy;
+    _backendMessage = message;
+    _backendResponseTime = responseTime;
     notifyListeners();
   }
 
-  // Método de login con SASU backend
+  // 💾 RESTAURAR SESIÓN DESDE CACHÉ (llamar al iniciar app)
+  Future<bool> restoreSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedToken = prefs.getString(_keyToken);
+      final cachedCarnetJson = prefs.getString(_keyCarnet);
+      final loginTimestamp = prefs.getInt(_keyLoginTime);
+      
+      if (cachedToken == null || cachedCarnetJson == null || loginTimestamp == null) {
+        print('📭 No hay sesión guardada');
+        return false;
+      }
+      
+      // Verificar que el token no tenga más de 7 días
+      final loginDate = DateTime.fromMillisecondsSinceEpoch(loginTimestamp);
+      final daysSinceLogin = DateTime.now().difference(loginDate).inDays;
+      
+      if (daysSinceLogin > 7) {
+        print('⏰ Sesión expirada (${daysSinceLogin} días)');
+        await clearCache();
+        return false;
+      }
+      
+      // Restaurar datos
+      _token = cachedToken;
+      _carnet = CarnetModel.fromJson(jsonDecode(cachedCarnetJson));
+      _isLoggedIn = true;
+      
+      print('✅ Sesión restaurada: ${_carnet?.nombreCompleto}');
+      print('🕐 Login hace $daysSinceLogin día(s)');
+      
+      // Cargar datos frescos en background
+      _loadCarnetData();
+      _loadCitasData();
+      loadPromociones(notifyWhenDone: false);
+      
+      notifyListeners();
+      return true;
+      
+    } catch (e) {
+      print('❌ Error restaurando sesión: $e');
+      await clearCache();
+      return false;
+    }
+  }
+  
+  // 💾 GUARDAR SESIÓN EN CACHÉ
+  Future<void> _saveSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      if (_token != null && _carnet != null) {
+        await prefs.setString(_keyToken, _token!);
+        await prefs.setString(_keyCarnet, jsonEncode(_carnet!.toJson()));
+        await prefs.setInt(_keyLoginTime, DateTime.now().millisecondsSinceEpoch);
+        print('💾 Sesión guardada en caché');
+      }
+    } catch (e) {
+      print('❌ Error guardando sesión: $e');
+    }
+  }
+  
+  // 🗑️ LIMPIAR CACHÉ
+  Future<void> clearCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_keyToken);
+      await prefs.remove(_keyCarnet);
+      await prefs.remove(_keyLoginTime);
+      print('🗑️ Caché limpiada');
+    } catch (e) {
+      print('❌ Error limpiando caché: $e');
+    }
+  }
+
+  // 🏥 VERIFICAR SALUD DEL BACKEND (llamar antes de login)
+  Future<void> checkBackend() async {
+    try {
+      final health = await ApiService.checkBackendHealth();
+      _setBackendStatus(
+        health['healthy'] ?? false,
+        health['message'],
+        health['responseTime'],
+      );
+    } catch (e) {
+      _setBackendStatus(false, 'Error verificando backend', -1);
+    }
+  }
+
+  // 🔑 MÉTODO DE LOGIN CON REINTENTOS Y CACHÉ
   Future<bool> login(String correo, String matricula) async {
     _setLoading(true);
     _setError(null);
@@ -46,24 +160,60 @@ class SessionProvider extends ChangeNotifier {
       final result = await ApiService.login(correo, matricula);
       
       if (result != null && result['success'] == true && result['token'] != null) {
-        _token = result['token'];  // Corregido: 'token' en lugar de 'access_token'
+        _token = result['token'];
         _isLoggedIn = true;
+        
+        // Mostrar info de cold start si aplica
+        if (result['coldStart'] == true) {
+          print('❄️ Login completado después de cold start (${result['responseTime']}ms)');
+        }
         
         // Cargar todos los datos SIN notificar en cada paso
         await _loadCarnetData();
         await _loadCitasData();
         await loadPromociones(notifyWhenDone: false);
         
+        // Guardar sesión en caché
+        await _saveSession();
+        
         // SOLO UNA notificación al final con todos los datos cargados
-        _setLoading(false); // ✅ Esto ya llama notifyListeners()
+        _setLoading(false);
         return true;
+        
+      } else if (result != null && result['errorType'] == 'CREDENTIALS') {
+        // Error de credenciales - mensaje específico
+        _setError(result['message'] ?? 'Credenciales incorrectas', 'CREDENTIALS');
+        _setLoading(false);
+        return false;
+        
       } else {
-        _setError('Credenciales inválidas');
+        // Error genérico
+        _setError('Error en el servidor. Intente nuevamente.', 'SERVER');
         _setLoading(false);
         return false;
       }
+      
     } catch (e) {
-      _setError('Error de conexión: $e');
+      // El sistema de reintentos agotó los intentos
+      final errorStr = e.toString();
+      
+      if (errorStr.contains('TIMEOUT')) {
+        _setError(
+          'El servidor tardó demasiado en responder. Puede estar iniciando, intente en 30 segundos.',
+          'TIMEOUT'
+        );
+      } else if (errorStr.contains('SocketException') || errorStr.contains('NetworkException')) {
+        _setError(
+          'Sin conexión a internet. Verifique su red.',
+          'NETWORK'
+        );
+      } else {
+        _setError(
+          'Error de conexión después de múltiples intentos. Intente más tarde.',
+          'CONNECTION'
+        );
+      }
+      
       _setLoading(false);
       return false;
     }

@@ -38,6 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final sessionProvider = context.read<SessionProvider>();
+      
+      // 🏥 Verificar salud del backend primero (no bloqueante)
+      sessionProvider.checkBackend();
+      
       final success = await sessionProvider.login(
         _emailController.text.trim(),
         _matriculaController.text.trim(),
@@ -46,12 +50,15 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success && mounted) {
         Navigator.of(context).pushReplacementNamed('/carnet');
       } else if (mounted) {
-        final error = sessionProvider.error ?? 'Error de autenticación';
-        _showErrorDialog('Error de autenticación', error);
+        final errorType = sessionProvider.errorType ?? 'UNKNOWN';
+        final errorMessage = sessionProvider.error ?? 'Error de autenticación';
+        
+        // Mostrar mensaje específico según tipo de error
+        _showErrorDialog(errorType, errorMessage);
       }
     } catch (e) {
       if (mounted) {
-        _showErrorDialog('Error de conexión', 
+        _showErrorDialog('CONNECTION', 
             'No se pudo conectar con el servidor. Intente más tarde.');
       }
     } finally {
@@ -63,17 +70,76 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showErrorDialog(String title, String message) {
+  void _showErrorDialog(String errorType, String message) {
+    // Iconos y títulos personalizados según tipo de error
+    IconData icon;
+    String title;
+    Color color;
+    
+    switch (errorType) {
+      case 'CREDENTIALS':
+        icon = Icons.lock_outline;
+        title = 'Credenciales Incorrectas';
+        color = Colors.orange;
+        break;
+      case 'TIMEOUT':
+        icon = Icons.hourglass_empty;
+        title = 'Servidor Iniciando';
+        color = Colors.blue;
+        break;
+      case 'NETWORK':
+        icon = Icons.wifi_off;
+        title = 'Sin Conexión';
+        color = Colors.red;
+        break;
+      case 'SERVER':
+        icon = Icons.dns_outlined;
+        title = 'Error del Servidor';
+        color = Colors.deepOrange;
+        break;
+      default:
+        icon = Icons.error_outline;
+        title = 'Error';
+        color = Colors.grey;
+    }
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        icon: Icon(icon, size: 48, color: color),
+        title: Text(
+          title,
+          style: TextStyle(color: color),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message),
+            if (errorType == 'TIMEOUT') ...[
+              const SizedBox(height: 16),
+              const LinearProgressIndicator(),
+              const SizedBox(height: 8),
+              const Text(
+                'Esto es normal si el servidor estaba inactivo.\nPor favor espere 30-60 segundos.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Entendido'),
           ),
+          if (errorType == 'TIMEOUT' || errorType == 'NETWORK')
+            FilledButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _handleLogin(); // Reintentar
+              },
+              child: const Text('Reintentar'),
+            ),
         ],
       ),
     );

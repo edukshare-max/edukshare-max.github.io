@@ -1,5 +1,5 @@
-// 🌐 SERVICIO API SASU - OPTIMIZADO Y FUNCIONAL
-// Basado en endpoints reales que funcionan
+// 🌐 SERVICIO API SASU - OPTIMIZADO Y ROBUSTO
+// Con reintentos automáticos, timeouts inteligentes y manejo de errores profesional
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -8,82 +8,179 @@ import 'package:carnet_digital_uagro/models/cita_model.dart';
 import 'package:carnet_digital_uagro/models/promocion_salud_model.dart';
 
 class ApiService {
-  // � BACKEND PRODUCCIÓN EN RENDER
+  // 🌐 BACKEND PRODUCCIÓN EN RENDER
   static const String baseUrl = 'https://carnet-alumnos-nodes.onrender.com';
   // static const String baseUrl = 'http://localhost:3000'; // Para pruebas locales
   
-  // 🔑 LOGIN CON JWT (TEMPORAL - Backend SASU aún no tiene /auth/login)
-  static Future<Map<String, dynamic>?> login(String email, String matricula) async {
-    try {
-      // TEMPORAL: Verificar si el backend está disponible
-      final healthUrl = Uri.parse('$baseUrl/health');
-      
-      print('🔍 VERIFICANDO BACKEND: $healthUrl');
-      
+  // ⚙️ CONFIGURACIÓN DE REINTENTOS Y TIMEOUTS
+  static const int maxRetries = 3;
+  static const Duration shortTimeout = Duration(seconds: 8);  // Health check
+  static const Duration normalTimeout = Duration(seconds: 20); // Operaciones normales
+  static const Duration longTimeout = Duration(seconds: 35);   // Login con cold start
+  
+  // 🔄 MÉTODO AUXILIAR: REINTENTO CON BACKOFF EXPONENCIAL
+  static Future<T?> _retryWithBackoff<T>(
+    Future<T> Function() operation, {
+    int maxAttempts = maxRetries,
+    String operationName = 'operación',
+  }) async {
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        final healthResponse = await http.get(healthUrl).timeout(
-          const Duration(seconds: 5),
-        );
-        
-        if (healthResponse.statusCode == 200) {
-          print('✅ Backend SASU disponible');
-          
-          // TEMPORAL: Generar token mock para pruebas locales
-          // TODO: Implementar endpoint /auth/login en el backend
-          final mockToken = 'mock_token_${matricula}_${DateTime.now().millisecondsSinceEpoch}';
-          
-          return {
-            'success': true,
-            'token': mockToken,
-            'matricula': matricula,
-            'email': email,
-            'message': 'Login temporal exitoso',
-          };
-        }
+        print('🔄 Intento $attempt/$maxAttempts para $operationName');
+        final result = await operation();
+        print('✅ $operationName exitosa en intento $attempt');
+        return result;
       } catch (e) {
-        print('⚠️ Backend SASU no disponible, intentando backend producción...');
+        final isLastAttempt = attempt == maxAttempts;
+        
+        if (isLastAttempt) {
+          print('❌ $operationName falló después de $maxAttempts intentos: $e');
+          rethrow;
+        }
+        
+        // Backoff exponencial: 2s, 4s, 8s...
+        final waitTime = Duration(seconds: 2 * attempt);
+        print('⏳ Reintentando en ${waitTime.inSeconds}s... (Error: ${e.toString().substring(0, 50)})');
+        await Future.delayed(waitTime);
       }
+    }
+    return null;
+  }
+  
+  // 🏥 HEALTH CHECK: Verificar si el backend está activo
+  static Future<Map<String, dynamic>> checkBackendHealth() async {
+    try {
+      final url = Uri.parse('$baseUrl/health');
+      print('🏥 Verificando salud del backend: $url');
       
-      // Intentar con backend de producción
-      final prodUrl = Uri.parse('https://carnet-alumnos-nodes.onrender.com/auth/login');
+      final startTime = DateTime.now();
+      final response = await http.get(url).timeout(shortTimeout);
+      final responseTime = DateTime.now().difference(startTime).inMilliseconds;
       
+      final isHealthy = response.statusCode == 200;
+      
+      return {
+        'healthy': isHealthy,
+        'statusCode': response.statusCode,
+        'responseTime': responseTime,
+        'message': isHealthy 
+          ? '✅ Backend activo (${responseTime}ms)' 
+          : '⚠️ Backend responde con error ${response.statusCode}',
+      };
+    } catch (e) {
+      print('❌ Health check falló: $e');
+      
+      // Detectar tipo de error
+      final isColdStart = e.toString().contains('TimeoutException');
+      
+      return {
+        'healthy': false,
+        'statusCode': 0,
+        'responseTime': -1,
+        'message': isColdStart 
+          ? '❄️ Backend iniciando (cold start Render)...' 
+          : '❌ Backend no disponible: $e',
+        'coldStart': isColdStart,
+      };
+    }
+  }
+  
+  // 🔑 LOGIN CON JWT - VERSIÓN ROBUSTA CON REINTENTOS
+  static Future<Map<String, dynamic>?> login(String email, String matricula) async {
+    return await _retryWithBackoff<Map<String, dynamic>>(
+      () => _performLogin(email, matricula),
+      operationName: 'login',
+    );
+  }
+  
+  // 🔐 IMPLEMENTACIÓN INTERNA DE LOGIN
+  static Future<Map<String, dynamic>> _performLogin(String email, String matricula) async {
+    final startTime = DateTime.now();
+    
+    try {
+      final url = Uri.parse('$baseUrl/auth/login');
       final body = {
         'correo': email,
         'matricula': matricula,
       };
       
-      print('🔍 LOGIN REQUEST PROD: $prodUrl');
+      print('🔍 LOGIN REQUEST: $url');
+      print('📧 Email: $email | 🎓 Matrícula: $matricula');
       
       final response = await http.post(
-        prodUrl,
+        url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(
+        longTimeout,
+        onTimeout: () {
+          throw Exception('TIMEOUT: El servidor tardó más de ${longTimeout.inSeconds}s en responder. Posible cold start de Render.');
+        },
+      );
       
-      print('📊 LOGIN RESPONSE: ${response.statusCode}');
+      final responseTime = DateTime.now().difference(startTime).inMilliseconds;
+      print('📊 LOGIN RESPONSE: ${response.statusCode} (${responseTime}ms)');
+      
+      // Detectar si fue cold start (respuesta lenta)
+      final wasColdStart = responseTime > 10000;
+      if (wasColdStart) {
+        print('❄️ Cold start detectado: ${responseTime}ms');
+      }
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        
         if (data['success'] == true && data['token'] != null) {
+          print('✅ Login exitoso');
           return {
             'success': true,
             'token': data['token'],
             'matricula': data['matricula'] ?? matricula,
+            'responseTime': responseTime,
+            'coldStart': wasColdStart,
           };
+        } else {
+          throw Exception('INVALID_RESPONSE: Respuesta del servidor sin token válido');
         }
+      } else if (response.statusCode == 401) {
+        // Credenciales incorrectas - NO reintentar
+        throw Exception('CREDENTIALS_ERROR: ${response.body}');
+      } else if (response.statusCode == 500) {
+        // Error del servidor - SÍ reintentar
+        throw Exception('SERVER_ERROR: Error interno del servidor (${response.statusCode})');
+      } else {
+        throw Exception('HTTP_ERROR: Status code ${response.statusCode}');
       }
       
-      return {
-        'success': false,
-        'message': 'Credenciales incorrectas',
-      };
     } catch (e) {
-      print('❌ LOGIN ERROR: $e');
-      return {
-        'success': false,
-        'message': 'Error de conexión: $e',
-      };
+      final errorType = _classifyError(e);
+      print('❌ LOGIN ERROR: $errorType - $e');
+      
+      // Si es error de credenciales, no reintentar
+      if (errorType == 'CREDENTIALS_ERROR') {
+        return {
+          'success': false,
+          'errorType': 'CREDENTIALS',
+          'message': 'Credenciales incorrectas. Verifica tu email y matrícula.',
+        };
+      }
+      
+      // Para otros errores, propagar para que el retry maneje
+      rethrow;
     }
+  }
+  
+  // 🏷️ CLASIFICAR TIPO DE ERROR
+  static String _classifyError(dynamic error) {
+    final errorStr = error.toString();
+    
+    if (errorStr.contains('CREDENTIALS_ERROR')) return 'CREDENTIALS_ERROR';
+    if (errorStr.contains('TIMEOUT')) return 'TIMEOUT_ERROR';
+    if (errorStr.contains('SocketException') || errorStr.contains('NetworkException')) return 'NETWORK_ERROR';
+    if (errorStr.contains('SERVER_ERROR')) return 'SERVER_ERROR';
+    if (errorStr.contains('FormatException')) return 'PARSE_ERROR';
+    
+    return 'UNKNOWN_ERROR';
   }
   
   // 🎓 OBTENER DATOS DEL CARNET CON JWT

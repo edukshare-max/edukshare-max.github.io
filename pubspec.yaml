@@ -37,6 +37,9 @@ dependencies:
   # HTTP Client para SASU Backend
   http: ^1.2.1
   
+  # Caché local para sesión persistente
+  shared_preferences: ^2.2.2
+  
   # UI Components
   cupertino_icons: ^1.0.8
   
