@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:carnet_digital_uagro/providers/session_provider.dart';
 import 'package:carnet_digital_uagro/screens/login_screen.dart';
+import 'package:carnet_digital_uagro/screens/register_screen.dart';
 import 'package:carnet_digital_uagro/screens/carnet_screen.dart';
 import 'package:carnet_digital_uagro/screens/carnet_screen_new.dart';
 import 'package:carnet_digital_uagro/screens/vacunas_screen.dart';
@@ -27,6 +28,7 @@ class CarnetDigitalApp extends StatelessWidget {
         home: const SessionRestoreScreen(), // 🔄 Nueva pantalla de splash con restauración
         routes: {
           '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
           '/carnet': (context) => const CarnetScreen(),
           '/carnet-new': (context) => const CarnetScreenNew(),
           '/vacunas': (context) => const VacunasScreen(),

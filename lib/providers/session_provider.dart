@@ -155,13 +155,13 @@ class SessionProvider extends ChangeNotifier {
     }
   }
 
-  // 🔑 MÉTODO DE LOGIN CON REINTENTOS Y CACHÉ
-  Future<bool> login(String correo, String matricula) async {
+  // 🔑 MÉTODO DE LOGIN CON REINTENTOS Y CACHÉ (MATRÍCULA + CONTRASEÑA)
+  Future<bool> login(String matricula, String password) async {
     _setLoading(true);
     _setError(null);
 
     try {
-      final result = await ApiService.login(correo, matricula);
+      final result = await ApiService.login(matricula, password);
       
       if (result != null && result['success'] == true && result['token'] != null) {
         _token = result['token'];
@@ -215,6 +215,74 @@ class SessionProvider extends ChangeNotifier {
       } else {
         _setError(
           'Error de conexión después de múltiples intentos. Intente más tarde.',
+          'CONNECTION'
+        );
+      }
+      
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // 📝 MÉTODO DE REGISTRO CON VALIDACIÓN DE CARNET EXISTENTE
+  Future<bool> register(String correo, String matricula, String password) async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      final result = await ApiService.register(correo, matricula, password);
+      
+      if (result != null && result['success'] == true) {
+        print('✅ Registro exitoso para matrícula: $matricula');
+        _setLoading(false);
+        return true;
+      } else if (result != null && result['errorType'] == 'NOT_FOUND') {
+        // Carnet no existe en la base de datos
+        _setError(
+          'Correo o matrícula no encontrados. Debes generar tu carnet digital primero en el Departamento de Servicios de Salud.',
+          'NOT_FOUND'
+        );
+        _setLoading(false);
+        return false;
+      } else if (result != null && result['errorType'] == 'MISMATCH') {
+        // Correo y matrícula no coinciden
+        _setError(
+          'El correo y la matrícula no coinciden. Verifica tus datos.',
+          'MISMATCH'
+        );
+        _setLoading(false);
+        return false;
+      } else if (result != null && result['errorType'] == 'ALREADY_EXISTS') {
+        // Ya existe una cuenta con estos datos
+        _setError(
+          'Ya existe una cuenta con esta matrícula. Intenta iniciar sesión.',
+          'ALREADY_EXISTS'
+        );
+        _setLoading(false);
+        return false;
+      } else {
+        // Error genérico
+        _setError('Error en el servidor. Intente nuevamente.', 'SERVER');
+        _setLoading(false);
+        return false;
+      }
+      
+    } catch (e) {
+      final errorStr = e.toString();
+      
+      if (errorStr.contains('TIMEOUT')) {
+        _setError(
+          'El servidor tardó demasiado en responder. Intente en 30 segundos.',
+          'TIMEOUT'
+        );
+      } else if (errorStr.contains('SocketException') || errorStr.contains('NetworkException')) {
+        _setError(
+          'Sin conexión a internet. Verifique su red.',
+          'NETWORK'
+        );
+      } else {
+        _setError(
+          'Error de conexión. Intente más tarde.',
           'CONNECTION'
         );
       }

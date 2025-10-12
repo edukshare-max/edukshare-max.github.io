@@ -87,27 +87,27 @@ class ApiService {
     }
   }
   
-  // 🔑 LOGIN CON JWT - VERSIÓN ROBUSTA CON REINTENTOS
-  static Future<Map<String, dynamic>?> login(String email, String matricula) async {
+  // 🔑 LOGIN CON JWT - VERSIÓN ROBUSTA CON REINTENTOS (MATRÍCULA + CONTRASEÑA)
+  static Future<Map<String, dynamic>?> login(String matricula, String password) async {
     return await _retryWithBackoff<Map<String, dynamic>>(
-      () => _performLogin(email, matricula),
+      () => _performLogin(matricula, password),
       operationName: 'login',
     );
   }
   
   // 🔐 IMPLEMENTACIÓN INTERNA DE LOGIN
-  static Future<Map<String, dynamic>> _performLogin(String email, String matricula) async {
+  static Future<Map<String, dynamic>> _performLogin(String matricula, String password) async {
     final startTime = DateTime.now();
     
     try {
       final url = Uri.parse('$baseUrl/auth/login');
       final body = {
-        'correo': email,
         'matricula': matricula,
+        'password': password,
       };
       
       print('🔍 LOGIN REQUEST: $url');
-      print('📧 Email: $email | 🎓 Matrícula: $matricula');
+      print('🎓 Matrícula: $matricula');
       
       final response = await http.post(
         url,
@@ -183,6 +183,97 @@ class ApiService {
     if (errorStr.contains('FormatException')) return 'PARSE_ERROR';
     
     return 'UNKNOWN_ERROR';
+  }
+  
+  // 📝 REGISTRO CON VALIDACIÓN DE CARNET EXISTENTE - CON REINTENTOS
+  static Future<Map<String, dynamic>?> register(String email, String matricula, String password) async {
+    return await _retryWithBackoff<Map<String, dynamic>>(
+      () => _performRegister(email, matricula, password),
+      operationName: 'registro',
+    );
+  }
+  
+  // 📝 IMPLEMENTACIÓN INTERNA DE REGISTRO
+  static Future<Map<String, dynamic>> _performRegister(String email, String matricula, String password) async {
+    final startTime = DateTime.now();
+    
+    try {
+      final url = Uri.parse('$baseUrl/auth/register');
+      final body = {
+        'correo': email,
+        'matricula': matricula,
+        'password': password,
+      };
+      
+      print('🔍 REGISTER REQUEST: $url');
+      print('📧 Email: $email | 🎓 Matrícula: $matricula');
+      
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      ).timeout(
+        normalTimeout,
+        onTimeout: () {
+          throw Exception('TIMEOUT: El servidor tardó más de ${normalTimeout.inSeconds}s en responder.');
+        },
+      );
+      
+      final responseTime = DateTime.now().difference(startTime).inMilliseconds;
+      print('📊 REGISTER RESPONSE: ${response.statusCode} (${responseTime}ms)');
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        
+        if (data['success'] == true) {
+          print('✅ Registro exitoso');
+          return {
+            'success': true,
+            'message': data['message'] ?? 'Cuenta creada exitosamente',
+            'responseTime': responseTime,
+          };
+        } else {
+          throw Exception('INVALID_RESPONSE: Respuesta del servidor sin éxito confirmado');
+        }
+      } else if (response.statusCode == 404) {
+        // Carnet no encontrado o correo/matrícula no coinciden
+        final data = jsonDecode(response.body);
+        final errorType = data['errorType'] ?? 'NOT_FOUND';
+        
+        return {
+          'success': false,
+          'errorType': errorType,
+          'message': data['message'] ?? 'Carnet no encontrado',
+        };
+      } else if (response.statusCode == 409) {
+        // Usuario ya existe
+        return {
+          'success': false,
+          'errorType': 'ALREADY_EXISTS',
+          'message': 'Ya existe una cuenta con esta matrícula',
+        };
+      } else if (response.statusCode == 400) {
+        // Error de validación
+        final data = jsonDecode(response.body);
+        return {
+          'success': false,
+          'errorType': 'VALIDATION',
+          'message': data['message'] ?? 'Datos inválidos',
+        };
+      } else if (response.statusCode == 500) {
+        // Error del servidor - SÍ reintentar
+        throw Exception('SERVER_ERROR: Error interno del servidor (${response.statusCode})');
+      } else {
+        throw Exception('HTTP_ERROR: Status code ${response.statusCode}');
+      }
+      
+    } catch (e) {
+      final errorType = _classifyError(e);
+      print('❌ REGISTER ERROR: $errorType - $e');
+      
+      // Propagar para que el retry maneje
+      rethrow;
+    }
   }
   
   // 🎓 OBTENER DATOS DEL CARNET CON JWT - CON REINTENTOS

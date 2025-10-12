@@ -580,12 +580,14 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
                 child: TextFormField(
                   controller: _usernameController,
+                  textCapitalization: TextCapitalization.characters,
                   decoration: InputDecoration(
-                    labelText: 'Usuario',
+                    labelText: 'Matrícula',
+                    hintText: 'UAGro-123456',
                     prefixIcon: Transform.rotate(
                       angle: _floatingController.value * 0.3,
                       child: const Icon(
-                        Icons.person_outline,
+                        Icons.badge_outlined,
                         color: Color(0xFF3b82f6),
                       ),
                     ),
@@ -598,7 +600,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese su usuario';
+                      return 'Por favor ingrese su matrícula';
                     }
                     return null;
                   },
@@ -756,6 +758,35 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             );
           },
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // Link a registro
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              '¿No tienes cuenta? ',
+              style: TextStyle(
+                color: Color(0xFF64748b),
+                fontSize: 14,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
+              child: Text(
+                'Regístrate aquí',
+                style: TextStyle(
+                  color: UAGroColors.primary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
