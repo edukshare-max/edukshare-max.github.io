@@ -3430,13 +3430,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildEmergencyItem('🚨', 'Emergencias General', '911'),
-              _buildEmergencyItem('🚑', 'Cruz Roja Acapulco', '744 485 4100'),
-              _buildEmergencyItem('🚒', 'Bomberos', '744 483 8282'),
-              _buildEmergencyItem('👮', 'Policía Municipal', '744 440 9191'),
-              _buildEmergencyItem('🏥', 'Hospital General', '744 445 0018'),
-              _buildEmergencyItem('⚕️', 'IMSS Acapulco', '744 469 0550'),
-              _buildEmergencyItem('🌊', 'Protección Civil', '744 481 1111'),
-              _buildEmergencyItem('🎓', 'Emergencia UAGro', '744 442 3000'),
+              _buildEmergencyItem('🚑', 'Cruz Roja Sector Diamante', '744 442 4883'),
+              _buildEmergencyItem('🚒', 'Bomberos Acapulco', '744 106 0885'),
+              _buildEmergencyItem('⚕️', 'IMSS Clínica 29', '744 435 1800'),
+              _buildEmergencyItem('🌊', 'Protección Civil Acapulco', '744 440 7031'),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),

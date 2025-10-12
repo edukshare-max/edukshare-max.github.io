@@ -319,41 +319,32 @@ class _LoginScreenState extends State<LoginScreen>
                               
                               // Logo UAGro profesional
                               _buildMedicalLogo(),
-                              const SizedBox(height: 40),
+                              const SizedBox(height: 28),
                               
-                              // Títulos organizados profesionalmente
+                              // Títulos organizados profesionalmente - COMPACTO
                               Column(
                                 children: [
-                                  // Título principal
+                                  // Título principal en una sola línea
                                   const Text(
-                                    'UNIVERSIDAD AUTÓNOMA',
+                                    'UNIVERSIDAD AUTÓNOMA DE GUERRERO',
                                     style: TextStyle(
-                                      fontSize: 24,
+                                      fontSize: 17,
                                       fontWeight: FontWeight.w700,
                                       color: Color(0xFF1e293b),
-                                      letterSpacing: 2.0,
+                                      letterSpacing: 0.8,
                                       height: 1.2,
                                     ),
                                     textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.visible,
                                   ),
-                                  const Text(
-                                    'DE GUERRERO',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1e293b),
-                                      letterSpacing: 2.0,
-                                      height: 1.2,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 16),
                                   
-                                  // Línea decorativa animada
+                                  // Línea decorativa animada más delgada
                                   AnimatedContainer(
                                     duration: const Duration(milliseconds: 1500),
-                                    width: 120,
-                                    height: 3,
+                                    width: 100,
+                                    height: 2,
                                     decoration: BoxDecoration(
                                       gradient: const LinearGradient(
                                         colors: [
@@ -361,17 +352,17 @@ class _LoginScreenState extends State<LoginScreen>
                                           Color(0xFFC41E3A),
                                         ],
                                       ),
-                                      borderRadius: BorderRadius.circular(2),
+                                      borderRadius: BorderRadius.circular(1),
                                     ),
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 16),
                                   
-                                  // Subtítulo médico
+                                  // Subtítulo médico más compacto
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF3b82f6).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(25),
+                                      borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
                                         color: const Color(0xFF3b82f6).withOpacity(0.3),
                                         width: 1,
@@ -380,17 +371,19 @@ class _LoginScreenState extends State<LoginScreen>
                                     child: const Text(
                                       'SISTEMA DE SALUD DIGITAL',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF3b82f6),
-                                        letterSpacing: 1.0,
+                                        letterSpacing: 0.6,
                                       ),
                                       textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.visible,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 35),
+                              const SizedBox(height: 28),
                               
                               Text(
                                 'Acceso seguro para estudiantes,\npersonal médico y administrativo.',
@@ -436,8 +429,8 @@ class _LoginScreenState extends State<LoginScreen>
           child: Transform.scale(
             scale: scale,
             child: Container(
-              width: 120,
-              height: 120,
+              width: 90,
+              height: 90,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
@@ -452,14 +445,14 @@ class _LoginScreenState extends State<LoginScreen>
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white.withOpacity(0.3),
-                  width: 3,
+                  width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF8B1538).withOpacity(0.35 + (_pulseController.value * 0.15)),
-                    blurRadius: 18 + (_pulseController.value * 10),
-                    offset: const Offset(0, 12),
-                    spreadRadius: _pulseController.value * 4,
+                    color: const Color(0xFF8B1538).withOpacity(0.25 + (_pulseController.value * 0.1)),
+                    blurRadius: 12 + (_pulseController.value * 6),
+                    offset: const Offset(0, 8),
+                    spreadRadius: _pulseController.value * 2,
                   ),
                 ],
               ),
@@ -468,12 +461,12 @@ class _LoginScreenState extends State<LoginScreen>
                   // Anillo externo ligeramente luminoso (sin rotación)
                   Positioned.fill(
                     child: Container(
-                      margin: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.4 + (_pulseController.value * 0.1)),
-                          width: 2,
+                          color: Colors.white.withOpacity(0.35 + (_pulseController.value * 0.08)),
+                          width: 1.5,
                         ),
                       ),
                     ),
@@ -483,7 +476,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Icon(
                       Icons.health_and_safety,
                       color: Colors.white,
-                      size: 48,
+                      size: 36,
                     ),
                   ),
                 ],
