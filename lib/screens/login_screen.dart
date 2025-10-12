@@ -1,8 +1,9 @@
-// 🔐 LOGIN SCREEN - AUTENTICACIÓN CON SASU
-// Email institucional + matrícula para acceso
+// 🔐 LOGIN SCREEN MODERNO - DISEÑO UAGro PROFESIONAL
+// Animaciones suaves y diseño institucional
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 import '../providers/session_provider.dart';
 import '../theme/uagro_theme.dart';
 
@@ -13,23 +14,83 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> 
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _matriculaController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
+  
+  // Controladores de animación para elementos dinámicos
+  late AnimationController _rotationController;
+  late AnimationController _pulseController;
+  late AnimationController _floatingController;
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    // Animación de rotación continua para el logo
+    _rotationController = AnimationController(
+      duration: const Duration(seconds: 10),
+      vsync: this,
+    )..repeat();
+    
+    // Animación de pulso para elementos dinámicos
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    // Animación flotante para partículas
+    _floatingController = AnimationController(
+      duration: const Duration(seconds: 4),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _matriculaController.dispose();
+    _rotationController.dispose();
+    _pulseController.dispose();
+    _floatingController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  // Función para obtener colores dinámicos de partículas
+  Color _getParticleColor(int index) {
+    final colors = [
+      const Color(0xFF3b82f6), // Azul médico
+      const Color(0xFF8B1538), // Rojo UAGro
+      const Color(0xFF059669), // Verde salud
+      const Color(0xFF7c3aed), // Morado
+      const Color(0xFFf59e0b), // Naranja
+      const Color(0xFFef4444), // Rojo coral
+    ];
+    return colors[index % colors.length];
+  }
+
+  // Función para obtener iconos dinámicos de partículas
+  IconData _getParticleIcon(int index) {
+    final icons = [
+      Icons.add,
+      Icons.favorite,
+      Icons.local_hospital,
+      Icons.healing,
+      Icons.medical_services,
+      Icons.health_and_safety,
+      Icons.vaccines,
+      Icons.monitor_heart,
+    ];
+    return icons[index % icons.length];
   }
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
     
-    // Prevenir múltiples submissions
     if (_isLoading) return;
 
     setState(() {
@@ -39,12 +100,11 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final sessionProvider = context.read<SessionProvider>();
       
-      // 🏥 Verificar salud del backend primero (no bloqueante)
       sessionProvider.checkBackend();
       
       final success = await sessionProvider.login(
-        _emailController.text.trim(),
-        _matriculaController.text.trim(),
+        _usernameController.text.trim(),
+        _passwordController.text.trim(),
       );
 
       if (success && mounted) {
@@ -53,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
         final errorType = sessionProvider.errorType ?? 'UNKNOWN';
         final errorMessage = sessionProvider.error ?? 'Error de autenticación';
         
-        // Mostrar mensaje específico según tipo de error
         _showErrorDialog(errorType, errorMessage);
       }
     } catch (e) {
@@ -71,237 +130,641 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showErrorDialog(String errorType, String message) {
-    // Iconos y títulos personalizados según tipo de error
-    IconData icon;
-    String title;
-    Color color;
-    
-    switch (errorType) {
-      case 'CREDENTIALS':
-        icon = Icons.lock_outline;
-        title = 'Credenciales Incorrectas';
-        color = Colors.orange;
-        break;
-      case 'TIMEOUT':
-        icon = Icons.hourglass_empty;
-        title = 'Servidor Iniciando';
-        color = Colors.blue;
-        break;
-      case 'NETWORK':
-        icon = Icons.wifi_off;
-        title = 'Sin Conexión';
-        color = Colors.red;
-        break;
-      case 'SERVER':
-        icon = Icons.dns_outlined;
-        title = 'Error del Servidor';
-        color = Colors.deepOrange;
-        break;
-      default:
-        icon = Icons.error_outline;
-        title = 'Error';
-        color = Colors.grey;
-    }
-    
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(icon, size: 48, color: color),
-        title: Text(
-          title,
-          style: TextStyle(color: color),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message),
-            if (errorType == 'TIMEOUT') ...[
-              const SizedBox(height: 16),
-              const LinearProgressIndicator(),
-              const SizedBox(height: 8),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: Colors.red[600],
+                size: 28,
+              ),
+              const SizedBox(width: 12),
               const Text(
-                'Esto es normal si el servidor estaba inactivo.\nPor favor espere 30-60 segundos.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-                textAlign: TextAlign.center,
+                'Error de Autenticación',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Entendido'),
           ),
-          if (errorType == 'TIMEOUT' || errorType == 'NETWORK')
-            FilledButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _handleLogin(); // Reintentar
-              },
-              child: const Text('Reintentar'),
+          content: Text(
+            message,
+            style: const TextStyle(fontSize: 16, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                'Entendido',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isDesktop = size.width > 768;
+    
     return Scaffold(
-      backgroundColor: UAGroColors.background,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Card(
-            elevation: 8,
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Logo UAGro
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: const BoxDecoration(
-                        color: UAGroColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.school,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    const Text(
-                      'Carnet Digital Universitario',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: UAGroColors.primary,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    const Text(
-                      'CRES Llano Largo',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: UAGroColors.primary,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 4),
-                    
-                    const Text(
-                      'Universidad Autónoma de Guerrero',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Email institucional
-                    SizedBox(
-                      width: 400,
-                      child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Institucional',
-                          hintText: 'ejemplo@uagro.mx',
-                          prefixIcon: Icon(Icons.email),
+      body: Stack(
+        children: [
+          // Fondo médico con gradiente animado
+          AnimatedContainer(
+            duration: const Duration(seconds: 3),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFf8fafc), // Gris muy claro
+                  Color(0xFFe2e8f0), // Gris claro
+                  Color(0xFFcbd5e1), // Gris medio
+                  Color(0xFF94a3b8), // Gris azulado
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+              ),
+            ),
+          ),
+          
+          // Partículas médicas súper dinámicas
+          ...List.generate(8, (index) => Positioned(
+            top: 80 + (index * 60) % 400,
+            left: (index * 80 + 40) % (size.width - 40),
+              child: AnimatedBuilder(
+              animation: Listenable.merge([_rotationController, _floatingController]),
+              builder: (context, child) {
+                final rotation = _rotationController.value * 2 * 3.14159 * (index.isEven ? 1 : -1);
+                final floating = _floatingController.value * 20;
+                final scale = 0.8 + (_floatingController.value * 0.4);
+                
+                return Transform.translate(
+                  offset: Offset(
+                    math.sin(rotation + index) * 15,
+                    floating + math.cos(rotation + index) * 10,
+                  ),
+                  child: Transform.rotate(
+                    angle: rotation,
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Container(
+                        width: 25 + (index % 3) * 5,
+                        height: 25 + (index % 3) * 5,
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            colors: [
+                              _getParticleColor(index).withOpacity(0.8),
+                              _getParticleColor(index).withOpacity(0.3),
+                              Colors.transparent,
+                            ],
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingrese su email institucional';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Ingrese un email válido';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 16),
-                    
-                    // Matrícula
-                    SizedBox(
-                      width: 400,
-                      child: TextFormField(
-                        controller: _matriculaController,
-                        decoration: const InputDecoration(
-                          labelText: 'Matrícula',
-                          hintText: '123456',
-                          prefixIcon: Icon(Icons.badge),
+                        child: Icon(
+                          _getParticleIcon(index),
+                          size: 15 + (index % 2) * 3,
+                          color: Colors.white.withOpacity(0.9),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Ingrese su matrícula';
-                          }
-                          // Permitir matrículas de cualquier longitud (3+ dígitos)
-                          if (value.trim().length < 3) {
-                            return 'La matrícula debe tener al menos 3 caracteres';
-                          }
-                          return null;
-                        },
                       ),
                     ),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Botón de login
-                    SizedBox(
-                      width: 400,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
-                              )
-                            : const Text(
-                                'Iniciar Sesión',
-                                style: TextStyle(fontSize: 16),
+                  ),
+                );
+              },
+            ),
+          )),
+          
+          // Contenido principal
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: isDesktop ? 450 : size.width * 0.9,
+                  ),
+                  margin: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Contenedor principal con animación
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 1200),
+                          curve: Curves.easeOutCubic,
+                          padding: EdgeInsets.all(isDesktop ? 50 : 40),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.95),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFF3b82f6).withOpacity(0.1),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 40,
+                                offset: const Offset(0, 20),
                               ),
-                      ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              // Badge de seguridad
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF22c55e).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: const Color(0xFF22c55e).withOpacity(0.2),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.lock,
+                                          color: Color(0xFF16a34a),
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Seguro',
+                                          style: TextStyle(
+                                            color: const Color(0xFF16a34a),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              
+                              // Logo UAGro profesional
+                              _buildMedicalLogo(),
+                              const SizedBox(height: 40),
+                              
+                              // Títulos organizados profesionalmente
+                              Column(
+                                children: [
+                                  // Título principal
+                                  const Text(
+                                    'UNIVERSIDAD AUTÓNOMA',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF1e293b),
+                                      letterSpacing: 2.0,
+                                      height: 1.2,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const Text(
+                                    'DE GUERRERO',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF1e293b),
+                                      letterSpacing: 2.0,
+                                      height: 1.2,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  
+                                  // Línea decorativa animada
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 1500),
+                                    width: 120,
+                                    height: 3,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF8B1538),
+                                          Color(0xFFC41E3A),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  
+                                  // Subtítulo médico
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF3b82f6).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(25),
+                                      border: Border.all(
+                                        color: const Color(0xFF3b82f6).withOpacity(0.3),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'SISTEMA DE SALUD DIGITAL',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF3b82f6),
+                                        letterSpacing: 1.0,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 35),
+                              
+                              Text(
+                                'Acceso seguro para estudiantes,\npersonal médico y administrativo.',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: const Color(0xFF64748b),
+                                  height: 1.6,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 35),
+                              
+                              // Formulario
+                              _buildLoginForm(isDesktop),
+                              
+                              // Línea de heartbeat
+                              const SizedBox(height: 30),
+                              _buildHeartbeatLine(),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Información adicional
-                    const Text(
-                      'Use sus credenciales institucionales\npara acceder a su carnet digital',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicalLogo() {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_pulseController, _floatingController]),
+      builder: (context, child) {
+        final double scale = 1.0 + (_pulseController.value * 0.08);
+        final double verticalOffset = math.sin(_floatingController.value * 2 * math.pi) * 6;
+
+        return Transform.translate(
+          offset: Offset(0, verticalOffset),
+          child: Transform.scale(
+            scale: scale,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF8B1538),
+                    Color(0xFFC41E3A),
+                    Color(0xFF8B1538),
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 3,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF8B1538).withOpacity(0.35 + (_pulseController.value * 0.15)),
+                    blurRadius: 18 + (_pulseController.value * 10),
+                    offset: const Offset(0, 12),
+                    spreadRadius: _pulseController.value * 4,
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Anillo externo ligeramente luminoso (sin rotación)
+                  Positioned.fill(
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.4 + (_pulseController.value * 0.1)),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Símbolo central de salud estático
+                  const Center(
+                    child: Icon(
+                      Icons.health_and_safety,
+                      color: Colors.white,
+                      size: 48,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHeartbeatLine() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 2000),
+      height: 60,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFF3b82f6).withOpacity(0.2),
+            width: 1,
+          ),
         ),
       ),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Animación de pulso en el icono del corazón
+            TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 1500),
+              tween: Tween(begin: 0.8, end: 1.2),
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: Icon(
+                    Icons.favorite,
+                    color: const Color(0xFF8B1538).withOpacity(0.6),
+                    size: 16,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'CRES Llano Largo - Sistema Seguro',
+              style: TextStyle(
+                color: const Color(0xFF64748b),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Segundo corazón con animación desfasada
+            TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 1500),
+              tween: Tween(begin: 1.2, end: 0.8),
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: Icon(
+                    Icons.favorite,
+                    color: const Color(0xFF8B1538).withOpacity(0.6),
+                    size: 16,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm(bool isDesktop) {
+    return Column(
+      children: [
+        // Campo de usuario con animación dinámica
+        AnimatedBuilder(
+          animation: _pulseController,
+          builder: (context, child) {
+            final scale = 1.0 + (_pulseController.value * 0.02);
+            return Transform.scale(
+              scale: scale,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF3b82f6).withOpacity(0.1 + (_pulseController.value * 0.2)),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF3b82f6).withOpacity(0.05 + (_pulseController.value * 0.1)),
+                      blurRadius: 10 + (_pulseController.value * 8),
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Usuario',
+                    prefixIcon: Transform.rotate(
+                      angle: _floatingController.value * 0.3,
+                      child: const Icon(
+                        Icons.person_outline,
+                        color: Color(0xFF3b82f6),
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF64748b),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingrese su usuario';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 20),
+
+        // Campo de contraseña con animación dinámica
+        AnimatedBuilder(
+          animation: Listenable.merge([_pulseController, _floatingController]),
+          builder: (context, child) {
+            final scale = 1.0 + (_pulseController.value * 0.015);
+            final rotation = _floatingController.value * 0.25;
+            return Transform.scale(
+              scale: scale,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF8B1538).withOpacity(0.1 + (_pulseController.value * 0.2)),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF8B1538).withOpacity(0.05 + (_pulseController.value * 0.1)),
+                      blurRadius: 10 + (_pulseController.value * 6),
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: 'Contraseña',
+                    prefixIcon: Transform.rotate(
+                      angle: rotation,
+                      child: const Icon(
+                        Icons.lock_outline,
+                        color: Color(0xFF8B1538),
+                      ),
+                    ),
+                    suffixIcon: Transform.scale(
+                      scale: 1.0 + (_pulseController.value * 0.1),
+                      child: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          color: const Color(0xFF64748b),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF64748b),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingrese su contraseña';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 30),
+
+        // Botón de acceso dinámico estilo UAGro
+        AnimatedBuilder(
+          animation: Listenable.merge([_pulseController, _rotationController]),
+          builder: (context, child) {
+            final scale = 1.0 + (_pulseController.value * 0.03);
+            final shadowIntensity = 0.4 + (_pulseController.value * 0.2);
+            return Transform.scale(
+              scale: scale,
+              child: Container(
+                width: double.infinity,
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.lerp(const Color(0xFF8B1538), const Color(0xFFC41E3A), _rotationController.value)!,
+                      Color.lerp(const Color(0xFFC41E3A), const Color(0xFF8B1538), _rotationController.value)!,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF8B1538).withOpacity(shadowIntensity),
+                      blurRadius: 15 + (_pulseController.value * 10),
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _isLoading ? null : _handleLogin,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: _isLoading
+                          ? Transform.rotate(
+                              angle: _rotationController.value * 2 * 3.14159,
+                              child: const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Transform.rotate(
+                                  angle: _floatingController.value * 0.2,
+                                  child: const Icon(
+                                    Icons.login,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'INGRESAR AL SISTEMA',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

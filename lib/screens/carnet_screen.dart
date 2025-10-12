@@ -96,18 +96,31 @@ class _CarnetScreenState extends State<CarnetScreen> {
           'Carnet Digital Universitario CRES Llano Largo - SASU',
           style: TextStyle(
             fontWeight: FontWeight.bold, 
-            color: _modoOscuro ? Colors.white : UAGroColors.primary,
+            color: Colors.white,
             fontSize: 16,
           ),
         ),
-        backgroundColor: _modoOscuro ? const Color(0xFF1F1F1F) : Colors.white,
-        foregroundColor: _modoOscuro ? Colors.white : UAGroColors.primary,
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Color(0xFF8B1538),
+                Color(0xFFC41E3A),
+                Color(0xFF8B1538),
+              ],
+              stops: [0.0, 0.5, 1.0],
+            ),
+          ),
+        ),
+        foregroundColor: Colors.white,
+        elevation: 3,
+        shadowColor: Color(0xFF8B1538).withOpacity(0.3),
         leading: Builder(
           builder: (context) => IconButton(
             icon: Icon(Icons.menu, 
-                      color: _modoOscuro ? Colors.white : UAGroColors.primary, 
+                      color: Colors.white, 
                       size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
             tooltip: 'Abrir menú',
@@ -337,53 +350,28 @@ class _CarnetScreenState extends State<CarnetScreen> {
       child: Column(
         children: [
           // Logo UAGro con diseño moderno
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+          // Badge "Prueba Piloto" discreto a la derecha
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.grey[300]!,
+                  width: 1,
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
-                const Text(
-                  'UNIVERSIDAD AUTÓNOMA DE GUERRERO',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: UAGroColors.primary,
-                    letterSpacing: 0.5,
-                  ),
-                  textAlign: TextAlign.center,
+              ),
+              child: const Text(
+                'Proyecto Piloto',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                  letterSpacing: 0.3,
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'CRES Llano Largo - Sistema SASU',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: UAGroColors.secondary,
-                    letterSpacing: 0.3,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const Text(
-                  'Proyecto Piloto',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                    fontStyle: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
           ),
           
@@ -547,160 +535,270 @@ class _CarnetScreenState extends State<CarnetScreen> {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [UAGroColors.primary, Color(0xFF0369A1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFFFFFF), Color(0xFFFEFEFE)],
         ),
-        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(isHeader ? 8 : 8),
         boxShadow: [
           BoxShadow(
-            color: UAGroColors.primary.withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.2),
-                width: 1.5,
+        borderRadius: BorderRadius.circular(isHeader ? 8 : 8),
+        child: Stack(
+          children: [
+            // Patrón de seguridad decorativo
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                width: 120,
+                height: 200,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.transparent,
+                      const Color(0xFF8B1538).withOpacity(0.02),
+                    ],
+                  ),
+                ),
               ),
             ),
-            child: Column(
+            
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'CARNET DIGITAL',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.2,
-                      ),
+                // Franja roja superior
+                Container(
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Color(0xFFDC2626), Color(0xFFB91C1C)],
                     ),
-                    // Icono para indicar si es desplegable
-                    if (isHeader)
-                      AnimatedRotation(
-                        turns: _isExpanded ? 0.5 : 0,
-                        duration: const Duration(milliseconds: 300),
-                        child: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      )
-                    else
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'ACTIVO',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 24),
-
-                // Datos Principales (sin foto)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center, // Centrado verticalmente
-                  children: [
-                    // Información Principal
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                
+                // Contenido principal
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Sección institucional
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            carnet.nombreCompleto.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20, // Ligeramente más grande
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              height: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              carnet.matricula,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
                           Row(
                             children: [
-                              Icon(Icons.email_rounded, color: Colors.white.withOpacity(0.8), size: 16),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  carnet.correo,
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
+                              // Logo container
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDC2626),
+                                  borderRadius: BorderRadius.circular(6),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFFDC2626).withOpacity(0.2),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    'UA',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Detalles institución
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Universidad Autónoma de Guerrero',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF1E293B),
+                                      letterSpacing: -0.2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'CRES Llano Largo - SASU',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: const Color(0xFF64748B),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(Icons.cake_rounded, color: Colors.white.withOpacity(0.8), size: 16),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${carnet.edad} años • ${carnet.sexo}',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          // Tipo de carnet
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDC2626),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'CARNET DIGITAL',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.8,
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      
+                      // Línea divisoria
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 16),
+                        height: 1,
+                        color: const Color(0xFFF1F5F9),
+                      ),
+                      
+                      // Sección del estudiante
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Detalles del estudiante
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  carnet.nombreCompleto,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF0F172A),
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                // Meta información
+                                _buildMetaItem('Matrícula:', carnet.matricula),
+                                const SizedBox(height: 6),
+                                _buildMetaItem('Correo:', carnet.correo),
+                                const SizedBox(height: 6),
+                                _buildMetaItem('Edad:', '${carnet.edad} años • ${carnet.sexo}'),
+                              ],
+                            ),
+                          ),
+                          
+                          // Indicador de estado
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0FDF4),
+                              border: Border.all(color: const Color(0xFFBBF7D0)),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF22C55E),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'ACTIVO',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF166534),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      // Icono desplegable si es header
+                      if (isHeader) ...[
+                        const SizedBox(height: 12),
+                        Center(
+                          child: AnimatedRotation(
+                            turns: _isExpanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: const Color(0xFF64748B),
+                              size: 28,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
+    );
+  }
+  
+  // Helper para items de metadata
+  Widget _buildMetaItem(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF334155),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF475569),
+              fontFamily: 'monospace',
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -928,12 +1026,12 @@ class _CarnetScreenState extends State<CarnetScreen> {
                         padding: EdgeInsets.all(isMobile ? 10 : 12),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF1976D2), Color(0xFF1565C0)],
+                            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
                           ),
                           borderRadius: BorderRadius.circular(isMobile ? 10 : 12),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1976D2).withOpacity(0.3),
+                              color: const Color(0xFF1565C0).withOpacity(0.3),
                               blurRadius: isMobile ? 6 : 8,
                               offset: Offset(0, isMobile ? 3 : 4),
                             ),
@@ -980,17 +1078,17 @@ class _CarnetScreenState extends State<CarnetScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1976D2).withOpacity(0.1),
+                            color: const Color(0xFF1565C0).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFF1976D2).withOpacity(0.3),
+                              color: const Color(0xFF1565C0).withOpacity(0.3),
                               width: 1,
                             ),
                           ),
                           child: Text(
                             '${session.promociones.length}',
                             style: const TextStyle(
-                              color: Color(0xFF1976D2),
+                              color: Color(0xFF1565C0),
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -3079,10 +3177,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
           'gradient': const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF4CAF50), Color(0xFF2E7D32), Color(0xFF1B5E20)],
-            stops: [0.0, 0.7, 1.0],
+            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+            stops: [0.0, 1.0],
           ),
-          'primaryColor': const Color(0xFF2E7D32),
+          'primaryColor': const Color(0xFF1565C0),
           'icon': '🛡️',
         };
       case 'consulta médica':
@@ -3091,10 +3189,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
           'gradient': const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF2196F3), Color(0xFF1565C0), Color(0xFF0D47A1)],
-            stops: [0.0, 0.7, 1.0],
+            colors: [Color(0xFF8B1538), Color(0xFFC41E3A)],
+            stops: [0.0, 1.0],
           ),
-          'primaryColor': const Color(0xFF1565C0),
+          'primaryColor': const Color(0xFF8B1538),
           'icon': '🏥',
         };
       case 'emergencia':
@@ -3103,10 +3201,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
           'gradient': const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFF44336), Color(0xFFD32F2F), Color(0xFFB71C1C)],
-            stops: [0.0, 0.7, 1.0],
+            colors: [Color(0xFF8B1538), Color(0xFFC41E3A)],
+            stops: [0.0, 1.0],
           ),
-          'primaryColor': const Color(0xFFD32F2F),
+          'primaryColor': const Color(0xFFC41E3A),
           'icon': '🚨',
         };
       case 'promoción':
@@ -3115,10 +3213,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
           'gradient': const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF2196F3), Color(0xFF1976D2), Color(0xFF1565C0)],
-            stops: [0.0, 0.7, 1.0],
+            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+            stops: [0.0, 1.0],
           ),
-          'primaryColor': const Color(0xFF1976D2),
+          'primaryColor': const Color(0xFF1565C0),
           'icon': '📢',
         };
       case 'información del sistema':
@@ -3127,10 +3225,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
           'gradient': const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF9C27B0), Color(0xFF7B1FA2), Color(0xFF4A148C)],
-            stops: [0.0, 0.7, 1.0],
+            colors: [Color(0xFF78909C), Color(0xFF546E7A)],
+            stops: [0.0, 1.0],
           ),
-          'primaryColor': const Color(0xFF7B1FA2),
+          'primaryColor': const Color(0xFF78909C),
           'icon': '📱',
         };
     }
