@@ -257,11 +257,11 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Contenedor principal con animación
+                        // Contenedor principal con animación - COMPACTO PARA MÓVIL
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 1200),
                           curve: Curves.easeOutCubic,
-                          padding: EdgeInsets.all(isDesktop ? 50 : 40),
+                          padding: EdgeInsets.all(isDesktop ? 50 : 24),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.95),
                             borderRadius: BorderRadius.circular(20),
@@ -315,35 +315,37 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: isDesktop ? 20 : 12),
                               
                               // Logo UAGro profesional
-                              _buildMedicalLogo(),
-                              const SizedBox(height: 28),
+                              _buildMedicalLogo(isDesktop),
+                              SizedBox(height: isDesktop ? 28 : 16),
                               
-                              // Títulos organizados profesionalmente - COMPACTO
+                              // Títulos organizados profesionalmente - MÁS COMPACTO PARA MÓVIL
                               Column(
                                 children: [
-                                  // Título principal en una sola línea
-                                  const Text(
-                                    'UNIVERSIDAD AUTÓNOMA DE GUERRERO',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1e293b),
-                                      letterSpacing: 0.8,
-                                      height: 1.2,
+                                  // Título principal - tamaño adaptativo y responsivo
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      'UNIVERSIDAD AUTÓNOMA\nDE GUERRERO',
+                                      style: TextStyle(
+                                        fontSize: isDesktop ? 17 : 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: const Color(0xFF1e293b),
+                                        letterSpacing: 0.6,
+                                        height: 1.3,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.visible,
                                   ),
-                                  const SizedBox(height: 16),
+                                  SizedBox(height: isDesktop ? 16 : 10),
                                   
                                   // Línea decorativa animada más delgada
                                   AnimatedContainer(
                                     duration: const Duration(milliseconds: 1500),
-                                    width: 100,
+                                    width: isDesktop ? 100 : 80,
                                     height: 2,
                                     decoration: BoxDecoration(
                                       gradient: const LinearGradient(
@@ -355,11 +357,14 @@ class _LoginScreenState extends State<LoginScreen>
                                       borderRadius: BorderRadius.circular(1),
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
+                                  SizedBox(height: isDesktop ? 16 : 10),
                                   
-                                  // Subtítulo médico más compacto
+                                  // Subtítulo médico más compacto - ADAPTADO PARA MÓVIL
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: isDesktop ? 20 : 12,
+                                      vertical: isDesktop ? 8 : 6,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF3b82f6).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(20),
@@ -368,33 +373,51 @@ class _LoginScreenState extends State<LoginScreen>
                                         width: 1,
                                       ),
                                     ),
-                                    child: const Text(
-                                      'SISTEMA DE SALUD DIGITAL',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF3b82f6),
-                                        letterSpacing: 0.6,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.visible,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'SISTEMA DE ATENCIÓN EN\nSALUD UNIVERSITARIA',
+                                          style: TextStyle(
+                                            fontSize: isDesktop ? 13 : 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF3b82f6),
+                                            letterSpacing: 0.5,
+                                            height: 1.3,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.visible,
+                                        ),
+                                        SizedBox(height: isDesktop ? 6 : 4),
+                                        Text(
+                                          'Proyecto de investigación piloto',
+                                          style: TextStyle(
+                                            fontSize: isDesktop ? 10 : 8,
+                                            fontWeight: FontWeight.w700,
+                                            color: const Color(0xFF8B1538),
+                                            letterSpacing: 0.3,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 28),
+                              SizedBox(height: isDesktop ? 28 : 18),
                               
                               Text(
                                 'Acceso seguro para estudiantes,\npersonal médico y administrativo.',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: isDesktop ? 16 : 13,
                                   color: const Color(0xFF64748b),
                                   height: 1.6,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 35),
+                              SizedBox(height: isDesktop ? 35 : 24),
                               
                               // Formulario
                               _buildLoginForm(isDesktop),
@@ -417,7 +440,11 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildMedicalLogo() {
+  Widget _buildMedicalLogo([bool isDesktop = false]) {
+    final logoSize = isDesktop ? 90.0 : 70.0;
+    final iconSize = isDesktop ? 28.0 : 24.0;
+    final fontSize = isDesktop ? 11.0 : 9.0;
+    
     return AnimatedBuilder(
       animation: Listenable.merge([_pulseController, _floatingController]),
       builder: (context, child) {
@@ -429,8 +456,8 @@ class _LoginScreenState extends State<LoginScreen>
           child: Transform.scale(
             scale: scale,
             child: Container(
-              width: 90,
-              height: 90,
+              width: logoSize,
+              height: logoSize,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
@@ -458,7 +485,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
               child: Stack(
                 children: [
-                  // Anillo externo ligeramente luminoso (sin rotación)
+                  // Anillo externo ligeramente luminoso
                   Positioned.fill(
                     child: Container(
                       margin: const EdgeInsets.all(6),
@@ -471,12 +498,27 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
                   ),
-                  // Símbolo central de salud estático
-                  const Center(
-                    child: Icon(
-                      Icons.health_and_safety,
-                      color: Colors.white,
-                      size: 36,
+                  // Símbolo central de salud con UAGro
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.health_and_safety,
+                          color: Colors.white,
+                          size: iconSize,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'UAGro',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -788,6 +830,24 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ],
         ),
+        
+        const SizedBox(height: 32),
+        
+        // Footer institucional
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text(
+            'Dirección de Innovación en Salud Universitaria del Centro de Investigación Transdisciplinar',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 10,
+              height: 1.4,
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 16),
       ],
     );
   }

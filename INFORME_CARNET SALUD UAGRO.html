@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Ejecutivo - Sistema de Atención en Salud Universitaria UAGro</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: white;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            page-break-after: always;
+            position: relative;
+        }
+        
+        /* PORTADA */
+        .cover-page {
+            background: linear-gradient(135deg, #8B1538 0%, #C41E3A 50%, #8B1538 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            text-align: center;
+        }
+        
+        .cover-logo {
+            width: 180px;
+            height: 180px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .cover-logo-icon {
+            font-size: 80px;
+            color: #8B1538;
+        }
+        
+        .cover-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .cover-subtitle {
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 60px;
+            opacity: 0.95;
+        }
+        
+        .cover-institution {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            padding: 20px 40px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cover-author {
+            margin-top: auto;
+            padding-top: 60px;
+        }
+        
+        .cover-author-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .cover-author-title {
+            font-size: 16px;
+            font-weight: 300;
+            opacity: 0.9;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+        
+        .cover-date {
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        /* PÁGINAS INTERNAS */
+        .content-page {
+            padding: 50px 60px;
+        }
+        
+        .header {
+            border-bottom: 3px solid #8B1538;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #8B1538;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header-line {
+            height: 4px;
+            background: linear-gradient(90deg, #8B1538, #C41E3A, transparent);
+            margin-top: 15px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            color: #8B1538;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-content {
+            font-size: 14px;
+            text-align: justify;
+            line-height: 1.8;
+            color: #34495e;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 5px solid #8B1538;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .highlight-box h3 {
+            color: #8B1538;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #8B1538;
+            box-shadow: 0 5px 20px rgba(139, 21, 56, 0.15);
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #8B1538;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features-list li {
+            padding: 15px 0 15px 40px;
+            position: relative;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #8B1538;
+            font-weight: bold;
+            font-size: 20px;
+            width: 30px;
+            height: 30px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .tech-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .tech-item h4 {
+            color: #8B1538;
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .tech-item p {
+            font-size: 13px;
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .screenshot-section {
+            margin: 40px 0;
+        }
+        
+        .screenshot {
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .screenshot-caption {
+            text-align: center;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .benefit-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+        }
+        
+        .benefit-card h4 {
+            color: #8B1538;
+            font-size: 18px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .benefit-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .benefit-card li {
+            padding: 8px 0 8px 25px;
+            position: relative;
+            font-size: 13px;
+            color: #34495e;
+        }
+        
+        .benefit-card li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #8B1538;
+            font-weight: bold;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #8B1538;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #8B1538;
+        }
+        
+        .timeline-item:after {
+            content: "";
+            position: absolute;
+            left: 19px;
+            top: 25px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background: #e0e0e0;
+        }
+        
+        .timeline-item:last-child:after {
+            display: none;
+        }
+        
+        .timeline-date {
+            font-weight: 600;
+            color: #8B1538;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content {
+            font-size: 14px;
+            color: #34495e;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            right: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 11px;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+        }
+        
+        .diagram-title {
+            text-align: center;
+            color: #8B1538;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        
+        .diagram-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .diagram-box {
+            background: white;
+            border: 2px solid #8B1538;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            min-width: 180px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(139, 21, 56, 0.1);
+        }
+        
+        .diagram-box-title {
+            font-weight: 700;
+            color: #8B1538;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .diagram-box-subtitle {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .diagram-arrow {
+            font-size: 30px;
+            color: #8B1538;
+            margin: 0 10px;
+        }
+        
+        .conclusion-box {
+            background: linear-gradient(135deg, #8B1538 0%, #C41E3A 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(139, 21, 56, 0.3);
+        }
+        
+        .conclusion-box h3 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .conclusion-box p {
+            font-size: 15px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+        
+        .signature-section {
+            margin-top: 80px;
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-top: 2px solid #2c3e50;
+            width: 300px;
+            margin: 60px auto 15px;
+        }
+        
+        .signature-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .signature-title {
+            font-size: 13px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        
+        @media print {
+            .page {
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PÁGINA 1: PORTADA -->
+    <div class="page cover-page">
+        <div class="cover-logo">
+            <div class="cover-logo-icon">🏥</div>
+        </div>
+        <h1 class="cover-title">Sistema de Atención en Salud Universitaria</h1>
+        <h2 class="cover-subtitle">Universidad Autónoma de Guerrero</h2>
+        <div class="cover-institution">
+            Proyecto Piloto de Investigación - Carnet Digital
+        </div>
+        <div style="margin: 40px 0; padding: 30px; background: rgba(255,255,255,0.15); border-radius: 15px; backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.3);">
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">🌐 Acceso Directo al Sistema</div>
+            <a href="https://app.carnetdigital.space" target="_blank" style="display: inline-block; background: white; color: #8B1538; padding: 15px 40px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s;">
+                🚀 Ver Sistema en Vivo
+            </a>
+            <div style="font-size: 13px; margin-top: 15px; opacity: 0.9;">
+                Haga clic para acceder al sistema en producción<br>
+                <strong>app.carnetdigital.space</strong>
+            </div>
+        </div>
+        
+        <div class="cover-author">
+            <div class="cover-author-name">Dr. Gilberto Valenzuela Herrera</div>
+            <div class="cover-author-title">
+                Dirección de Innovación en Salud Universitaria<br>
+                Centro de Investigación Transdisciplinar
+            </div>
+            <div class="cover-date">Octubre 2025</div>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2: RESUMEN EJECUTIVO -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Informe Ejecutivo</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎯 Resumen Ejecutivo</h2>
+            <div class="section-content">
+                <p>
+                    El presente informe describe la implementación exitosa del <strong>Sistema de Atención en Salud Universitaria de la Universidad Autónoma de Guerrero</strong>, 
+                    un proyecto de innovación tecnológica desarrollado por la Dirección de Innovación en Salud Universitaria del Centro de Investigación Transdisciplinar.
+                </p>
+                <p style="margin-top: 15px;">
+                    Este sistema representa un avance significativo en la digitalización de servicios universitarios, permitiendo a estudiantes, 
+                    académicos y personal administrativo acceder de manera segura y eficiente a sus credenciales institucionales y expedientes 
+                    de salud a través de una plataforma web moderna y accesible desde cualquier dispositivo.
+                </p>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h3>🏆 Logros Principales</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Sistema Funcional</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Disponibilidad</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Módulos Integrados</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📋 Contexto del Proyecto</h2>
+            <div class="section-content">
+                <p>
+                    La Universidad Autónoma de Guerrero, en su compromiso con la modernización y la excelencia académica, 
+                    ha desarrollado este sistema como parte de su estrategia de transformación digital. El proyecto surge de la necesidad 
+                    de optimizar el acceso a servicios de salud universitaria y facilitar la gestión de información académica.
+                </p>
+                <p style="margin-top: 15px;">
+                    Bajo la dirección de la Dirección de Innovación en Salud Universitaria, este sistema integra tecnologías 
+                    de vanguardia para proporcionar una experiencia de usuario excepcional, garantizando la seguridad, privacidad 
+                    y accesibilidad de la información.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 1</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 3: FUNCIONALIDADES -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Funcionalidades del Sistema</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">💼 Módulos Implementados</h2>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h4>🔐 Autenticación Segura</h4>
+                    <ul>
+                        <li>Sistema de registro con validación institucional</li>
+                        <li>Login con matrícula y contraseña cifrada</li>
+                        <li>Tokens JWT con expiración de 7 días</li>
+                        <li>Sesiones persistentes y seguras</li>
+                        <li>Recuperación manual de contraseñas</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>🎫 Carnet Digital</h4>
+                    <ul>
+                        <li>Visualización de credencial universitaria</li>
+                        <li>Código QR para identificación rápida</li>
+                        <li>Información académica actualizada</li>
+                        <li>Diseño responsive para móviles</li>
+                        <li>Exportación y descarga del carnet</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>🏥 Expediente de Salud</h4>
+                    <ul>
+                        <li>Historia clínica completa</li>
+                        <li>Registro de alergias y enfermedades crónicas</li>
+                        <li>Tipo de sangre y datos médicos relevantes</li>
+                        <li>Contacto de emergencia</li>
+                        <li>Información sobre seguro médico</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>📅 Gestión de Citas</h4>
+                    <ul>
+                        <li>Visualización de citas médicas programadas</li>
+                        <li>Historial de consultas realizadas</li>
+                        <li>Notificaciones y recordatorios</li>
+                        <li>Información de médicos y departamentos</li>
+                        <li>Estado de citas en tiempo real</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">✨ Características Destacadas</h2>
+            <ul class="features-list">
+                <li><strong>Interfaz Moderna e Intuitiva:</strong> Diseño atractivo con los colores institucionales de la UAGro, optimizado para una experiencia visual excepcional.</li>
+                <li><strong>Accesibilidad Multiplataforma:</strong> Compatible con dispositivos móviles, tablets y computadoras de escritorio.</li>
+                <li><strong>Seguridad Avanzada:</strong> Cifrado de contraseñas con bcrypt, tokens JWT y protección CORS.</li>
+                <li><strong>Rendimiento Optimizado:</strong> Sistema de caché y retry logic para garantizar disponibilidad incluso con conexiones intermitentes.</li>
+                <li><strong>Escalabilidad:</strong> Arquitectura en la nube con Azure Cosmos DB y servicios de backend en Render.</li>
+                <li><strong>Promociones de Salud:</strong> Sistema integrado para difundir información relevante sobre salud y bienestar universitario.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 2</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 4: ARQUITECTURA TÉCNICA -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Arquitectura Técnica</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🏗️ Infraestructura del Sistema</h2>
+            
+            <div class="architecture-diagram">
+                <div class="diagram-title">Flujo de Información</div>
+                <div class="diagram-flow">
+                    <div class="diagram-box">
+                        <div class="diagram-box-title">Frontend</div>
+                        <div class="diagram-box-subtitle">Flutter Web<br>GitHub Pages</div>
+                    </div>
+                    <div class="diagram-arrow">→</div>
+                    <div class="diagram-box">
+                        <div class="diagram-box-title">Backend</div>
+                        <div class="diagram-box-subtitle">Node.js + Express<br>Render Cloud</div>
+                    </div>
+                    <div class="diagram-arrow">→</div>
+                    <div class="diagram-box">
+                        <div class="diagram-box-title">Base de Datos</div>
+                        <div class="diagram-box-subtitle">Azure Cosmos DB<br>Microsoft Cloud</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">💻 Stack Tecnológico</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h4>Frontend</h4>
+                    <p><strong>Flutter Web:</strong> Framework de Google para desarrollo web multiplataforma con rendimiento nativo y diseño moderno.</p>
+                    <p style="margin-top: 10px;"><strong>Provider:</strong> Gestión de estado eficiente y reactiva.</p>
+                    <p style="margin-top: 10px;"><strong>Despliegue:</strong> GitHub Pages con dominio personalizado app.carnetdigital.space</p>
+                </div>
+                
+                <div class="tech-item">
+                    <h4>Backend</h4>
+                    <p><strong>Node.js + Express:</strong> Servidor de alto rendimiento con API RESTful.</p>
+                    <p style="margin-top: 10px;"><strong>JWT:</strong> Autenticación segura basada en tokens.</p>
+                    <p style="margin-top: 10px;"><strong>bcryptjs:</strong> Cifrado de contraseñas con salting.</p>
+                    <p style="margin-top: 10px;"><strong>Despliegue:</strong> Render Cloud Platform</p>
+                </div>
+                
+                <div class="tech-item">
+                    <h4>Base de Datos</h4>
+                    <p><strong>Azure Cosmos DB:</strong> Base de datos NoSQL distribuida globalmente de Microsoft Azure.</p>
+                    <p style="margin-top: 10px;"><strong>Contenedores:</strong> carnets_id, cita_id, promociones_salud, usuarios_matricula</p>
+                    <p style="margin-top: 10px;"><strong>Rendimiento:</strong> 400 RU/s con escalabilidad automática</p>
+                </div>
+                
+                <div class="tech-item">
+                    <h4>Seguridad</h4>
+                    <p><strong>CORS:</strong> Control de acceso entre orígenes configurado.</p>
+                    <p style="margin-top: 10px;"><strong>Helmet:</strong> Protección de headers HTTP.</p>
+                    <p style="margin-top: 10px;"><strong>Rate Limiting:</strong> Prevención de ataques DDoS.</p>
+                    <p style="margin-top: 10px;"><strong>HTTPS:</strong> Comunicación cifrada end-to-end</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h3>🔒 Seguridad y Privacidad</h3>
+            <div class="section-content">
+                <p>
+                    El sistema implementa múltiples capas de seguridad para proteger la información sensible de los usuarios:
+                    cifrado de contraseñas con bcrypt (10 rounds), tokens JWT con expiración automática, validación de identidad 
+                    contra la base de datos institucional, y cumplimiento con estándares de protección de datos personales.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 3</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 5: INTERFAZ Y DISEÑO -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Diseño de Interfaz</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎨 Identidad Visual</h2>
+            <div class="section-content">
+                <p>
+                    El sistema ha sido diseñado con especial atención a la identidad institucional de la Universidad Autónoma de Guerrero,
+                    incorporando los colores oficiales (rojo guinda #8B1538 y azul #3b82f6) en una interfaz moderna y elegante.
+                </p>
+            </div>
+        </div>
+
+        <div class="screenshot-section">
+            <h3 style="color: #8B1538; font-size: 20px; margin-bottom: 20px;">Pantalla de Inicio de Sesión</h3>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 40px; text-align: center;">
+                <div style="background: white; border-radius: 50%; width: 90px; height: 90px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <div style="font-size: 40px;">🏥</div>
+                </div>
+                <div style="color: white; font-size: 24px; font-weight: 700; margin-bottom: 10px;">UNIVERSIDAD AUTÓNOMA DE GUERRERO</div>
+                <div style="color: white; font-size: 16px; margin-bottom: 20px;">Sistema de Atención en Salud Universitaria</div>
+                <div style="background: linear-gradient(90deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; font-size: 14px; margin-bottom: 30px;">
+                    Proyecto de investigación piloto
+                </div>
+                <div style="background: white; border-radius: 10px; padding: 30px; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <div style="color: #2c3e50; font-size: 14px; text-align: left; margin-bottom: 15px;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">Matrícula</div>
+                        <div style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; background: #f8f9fa;">12345</div>
+                    </div>
+                    <div style="color: #2c3e50; font-size: 14px; text-align: left; margin-bottom: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 5px;">Contraseña</div>
+                        <div style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; background: #f8f9fa;">••••••••</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #8B1538, #C41E3A); color: white; padding: 15px; border-radius: 8px; font-weight: 700; margin-bottom: 15px;">
+                        INICIAR SESIÓN
+                    </div>
+                    <div style="font-size: 12px; color: #7f8c8d;">¿No tienes cuenta? <span style="color: #8B1538; font-weight: 600;">Regístrate aquí</span></div>
+                </div>
+                <div style="color: white; font-size: 10px; margin-top: 30px; opacity: 0.8; max-width: 500px; margin: 30px auto 0;">
+                    Dirección de Innovación en Salud Universitaria del Centro de Investigación Transdisciplinar
+                </div>
+            </div>
+            <p class="screenshot-caption">Interfaz de inicio con logo institucional UAGro, diseño responsive y footer informativo</p>
+        </div>
+
+        <div class="section" style="margin-top: 40px;">
+            <h2 class="section-title">📱 Diseño Responsivo</h2>
+            <div class="section-content">
+                <p>
+                    La interfaz se adapta automáticamente a diferentes tamaños de pantalla, garantizando una experiencia óptima 
+                    en dispositivos móviles (smartphones), tablets y computadoras de escritorio. Los elementos visuales se 
+                    redimensionan dinámicamente para mantener la legibilidad y usabilidad en todos los dispositivos.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 4</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 6: CARNET DIGITAL -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Carnet Digital</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="screenshot-section">
+            <h3 style="color: #8B1538; font-size: 20px; margin-bottom: 20px;">Vista del Carnet Digital Institucional</h3>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 40px;">
+                <div style="background: white; border-radius: 20px; padding: 30px; max-width: 600px; margin: 0 auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="text-align: center; border-bottom: 3px solid #8B1538; padding-bottom: 20px; margin-bottom: 20px;">
+                        <div style="font-size: 18px; font-weight: 700; color: #8B1538; margin-bottom: 5px;">UNIVERSIDAD AUTÓNOMA DE GUERRERO</div>
+                        <div style="font-size: 14px; color: #7f8c8d;">Carnet Digital Universitario</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 30px; align-items: center; margin-bottom: 25px;">
+                        <div style="flex-shrink: 0;">
+                            <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #8B1538, #C41E3A); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; box-shadow: 0 5px 20px rgba(139, 21, 56, 0.3);">
+                                👤
+                            </div>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <div style="font-size: 22px; font-weight: 700; color: #2c3e50; margin-bottom: 8px;">GILBERTO VALENZUELA HERRERA</div>
+                            <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">📚 Maestría en Economía Social</div>
+                            <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 5px;">🎓 Académico</div>
+                            <div style="font-size: 14px; color: #7f8c8d;">📧 15662@uagro.mx</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #8B1538;">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px;">MATRÍCULA</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #2c3e50;">15662</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #8B1538;">
+                            <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 5px;">TIPO DE SANGRE</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #C41E3A;">O+</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="width: 150px; height: 150px; background: white; border: 3px solid #8B1538; border-radius: 10px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 60px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);">
+                            📱
+                        </div>
+                        <div style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">Código QR de Identificación</div>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                        <div style="font-size: 13px; color: #2c3e50; line-height: 1.6;">
+                            <div style="margin-bottom: 8px;"><strong>🩺 Info Médica:</strong> Alergias: ceftriaxona, ranitidina, semilla de girasol</div>
+                            <div style="margin-bottom: 8px;"><strong>📞 Emergencia:</strong> ESPOSA - 7442161643</div>
+                            <div><strong>🏥 Seguro:</strong> ISSSTE - No usa seguro universitario</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px solid #e0e0e0;">
+                        <div style="font-size: 11px; color: #7f8c8d;">
+                            Válido para identificación institucional y servicios de salud<br>
+                            Sistema de Atención en Salud Universitaria
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="screenshot-caption">Carnet digital completo con información académica, médica y código QR para identificación rápida</p>
+        </div>
+
+        <div class="section" style="margin-top: 40px;">
+            <h2 class="section-title">✨ Funcionalidades del Carnet</h2>
+            <ul class="features-list">
+                <li><strong>Código QR:</strong> Permite identificación rápida mediante escaneo, útil para acceso a instalaciones y servicios.</li>
+                <li><strong>Información Médica:</strong> Datos vitales accesibles en caso de emergencia (tipo de sangre, alergias, contacto).</li>
+                <li><strong>Actualización Automática:</strong> Los datos se sincronizan en tiempo real con la base de datos institucional.</li>
+                <li><strong>Exportación:</strong> Posibilidad de descargar o imprimir el carnet para uso offline.</li>
+                <li><strong>Validación Institucional:</strong> Cada carnet está vinculado a la matrícula oficial del usuario.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 5</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 7: BENEFICIOS E IMPACTO -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Beneficios e Impacto</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎯 Beneficios para la Comunidad Universitaria</h2>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h4>Para Estudiantes</h4>
+                    <ul>
+                        <li>Acceso 24/7 a su carnet digital</li>
+                        <li>Consulta de expediente médico</li>
+                        <li>Gestión de citas médicas online</li>
+                        <li>Información de salud actualizada</li>
+                        <li>No requiere carnet físico</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>Para Académicos y Personal</h4>
+                    <ul>
+                        <li>Credencial digital siempre disponible</li>
+                        <li>Acceso a servicios de salud universitaria</li>
+                        <li>Expediente médico digital</li>
+                        <li>Gestión eficiente de citas</li>
+                        <li>Información de contacto actualizada</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>Para la Institución</h4>
+                    <ul>
+                        <li>Reducción de costos de impresión</li>
+                        <li>Actualización de datos en tiempo real</li>
+                        <li>Mejor gestión de servicios de salud</li>
+                        <li>Estadísticas y análisis de uso</li>
+                        <li>Modernización de la imagen institucional</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>Para el Personal Médico</h4>
+                    <ul>
+                        <li>Acceso rápido a historias clínicas</li>
+                        <li>Información de emergencia disponible</li>
+                        <li>Gestión eficiente de citas</li>
+                        <li>Comunicación directa con pacientes</li>
+                        <li>Trazabilidad de atenciones</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top: 40px;">
+            <h2 class="section-title">📊 Impacto Esperado</h2>
+            <div class="highlight-box">
+                <h3>🌟 Proyecciones del Proyecto</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">10,000+</div>
+                        <div class="stat-label">Usuarios Potenciales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">70%</div>
+                        <div class="stat-label">Reducción de Costos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Satisfacción Esperada</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🌱 Sostenibilidad y Medio Ambiente</h2>
+            <div class="section-content">
+                <p>
+                    El proyecto contribuye significativamente a la sostenibilidad institucional al eliminar la necesidad de 
+                    imprimir carnets físicos. Se estima que el sistema evitará la impresión de más de 10,000 carnets de PVC 
+                    anualmente, reduciendo el impacto ambiental y los costos operativos. Además, la digitalización de expedientes 
+                    médicos reduce el uso de papel en las clínicas universitarias.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 6</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 8: IMPLEMENTACIÓN Y PRÓXIMOS PASOS -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Implementación y Desarrollo Futuro</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">⏱️ Línea de Tiempo del Proyecto</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">Fase 1: Planificación (Completada)</div>
+                    <div class="timeline-content">Análisis de requerimientos, diseño de arquitectura y definición de alcance del proyecto.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Fase 2: Desarrollo (Completada)</div>
+                    <div class="timeline-content">Implementación del frontend en Flutter, backend en Node.js y base de datos en Azure Cosmos DB.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Fase 3: Pruebas (Completada)</div>
+                    <div class="timeline-content">Testing exhaustivo en localhost, validación de seguridad y pruebas de usuario.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Fase 4: Despliegue (Completada)</div>
+                    <div class="timeline-content">Publicación en producción con dominio app.carnetdigital.space, configuración de SSL y monitoreo.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Fase 5: Piloto (En Curso)</div>
+                    <div class="timeline-content">Proyecto piloto con grupo selecto de usuarios para validación y feedback.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🚀 Próximas Mejoras Planificadas</h2>
+            <ul class="features-list">
+                <li><strong>Integración con Sistema de Biblioteca:</strong> Permitir préstamos de libros mediante el carnet digital.</li>
+                <li><strong>Control de Acceso Físico:</strong> Uso del código QR para acceder a instalaciones universitarias.</li>
+                <li><strong>Notificaciones Push:</strong> Alertas sobre citas, promociones de salud y eventos institucionales.</li>
+                <li><strong>Módulo de Vacunación:</strong> Registro y seguimiento completo del esquema de vacunación.</li>
+                <li><strong>Telemedicina:</strong> Consultas médicas virtuales integradas en la plataforma.</li>
+                <li><strong>Historial Académico:</strong> Visualización de calificaciones y avance curricular.</li>
+                <li><strong>Pagos en Línea:</strong> Integración con sistema de pagos para servicios universitarios.</li>
+                <li><strong>App Móvil Nativa:</strong> Desarrollo de aplicaciones iOS y Android con funcionalidades offline.</li>
+            </ul>
+        </div>
+
+        <div class="highlight-box">
+            <h3>💡 Recomendaciones</h3>
+            <div class="section-content">
+                <p>
+                    Para maximizar el impacto del sistema, se recomienda:
+                </p>
+                <ul style="list-style: disc; padding-left: 20px; margin-top: 15px;">
+                    <li>Implementar campaña de difusión entre la comunidad universitaria</li>
+                    <li>Capacitar al personal de salud y administrativo en el uso del sistema</li>
+                    <li>Establecer puntos de apoyo técnico para usuarios</li>
+                    <li>Considerar expansión a otros campus universitarios</li>
+                    <li>Evaluar integración con otros sistemas institucionales</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 7</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 9: CONCLUSIONES -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Conclusiones</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="conclusion-box">
+            <h3>🎓 Resumen y Logros</h3>
+            <p>
+                El Sistema de Atención en Salud Universitaria de la Universidad Autónoma de Guerrero representa un avance significativo en la 
+                modernización de los servicios universitarios. Este proyecto, desarrollado por la Dirección de Innovación en 
+                Salud Universitaria del Centro de Investigación Transdisciplinar, demuestra el compromiso de nuestra institución 
+                con la transformación digital y la excelencia en la atención a la comunidad universitaria.
+            </p>
+            <p style="margin-top: 15px;">
+                La implementación exitosa del sistema, con su interfaz intuitiva, arquitectura robusta y funcionalidades 
+                completas, posiciona a la UAGro como líder en innovación tecnológica educativa en la región. El proyecto 
+                no solo mejora la experiencia de usuarios, sino que también optimiza procesos administrativos y contribuye 
+                a la sostenibilidad institucional.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">✅ Objetivos Alcanzados</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h4>Técnicos</h4>
+                    <ul>
+                        <li>Sistema 100% funcional y estable</li>
+                        <li>Arquitectura escalable en la nube</li>
+                        <li>Seguridad de nivel empresarial</li>
+                        <li>Disponibilidad 24/7</li>
+                        <li>Interfaz responsive y moderna</li>
+                    </ul>
+                </div>
+                
+                <div class="benefit-card">
+                    <h4>Institucionales</h4>
+                    <ul>
+                        <li>Modernización de servicios</li>
+                        <li>Reducción de costos operativos</li>
+                        <li>Mejora en la imagen institucional</li>
+                        <li>Optimización de procesos</li>
+                        <li>Innovación tecnológica</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎯 Valor Agregado</h2>
+            <div class="section-content">
+                <p>
+                    Este proyecto trasciende la simple digitalización de un carnet físico. Representa una plataforma 
+                    integral que:
+                </p>
+                <ul style="list-style: disc; padding-left: 20px; margin-top: 15px; line-height: 1.8;">
+                    <li>Centraliza información académica y de salud de manera segura</li>
+                    <li>Facilita el acceso a servicios universitarios de forma eficiente</li>
+                    <li>Contribuye a la transformación digital de la UAGro</li>
+                    <li>Establece un precedente para futuros proyectos tecnológicos</li>
+                    <li>Mejora la calidad de atención a la comunidad universitaria</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h3>🌟 Reflexión Final</h3>
+            <div class="section-content">
+                <p>
+                    El Sistema de Atención en Salud Universitaria es más que un proyecto tecnológico; es una inversión en el futuro de 
+                    la Universidad Autónoma de Guerrero. Demuestra que con visión, trabajo colaborativo y compromiso 
+                    con la innovación, podemos crear soluciones que transforman positivamente la experiencia de toda 
+                    nuestra comunidad universitaria.
+                </p>
+                <p style="margin-top: 15px;">
+                    Agradecemos el apoyo de las autoridades universitarias y esperamos que este proyecto sirva como 
+                    catalizador para futuras iniciativas de innovación en nuestra institución.
+                </p>
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-line"></div>
+            <div class="signature-name">Dr. Gilberto Valenzuela Herrera</div>
+            <div class="signature-title">
+                Director de Innovación en Salud Universitaria<br>
+                Centro de Investigación Transdisciplinar<br>
+                Universidad Autónoma de Guerrero
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 8</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+    <!-- PÁGINA 10: CONTACTO E INFORMACIÓN ADICIONAL -->
+    <div class="page content-page">
+        <div class="header">
+            <h1>Información Adicional</h1>
+            <div class="header-line"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📞 Información de Contacto</h2>
+            <div class="highlight-box">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px;">
+                    <div>
+                        <h4 style="color: #8B1538; margin-bottom: 10px;">Dirección del Proyecto</h4>
+                        <p style="font-size: 14px; line-height: 1.8;">
+                            <strong>Dr. Gilberto Valenzuela Herrera</strong><br>
+                            Director de Innovación en Salud Universitaria<br>
+                            Centro de Investigación Transdisciplinar<br>
+                            Universidad Autónoma de Guerrero<br>
+                            📧 15662@uagro.mx
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="color: #8B1538; margin-bottom: 10px;">Acceso al Sistema</h4>
+                        <p style="font-size: 14px; line-height: 1.8;">
+                            <strong>URL del Sistema:</strong><br>
+                            🌐 <a href="https://app.carnetdigital.space" style="color: #3b82f6;">app.carnetdigital.space</a><br><br>
+                            <strong>Backend API:</strong><br>
+                            🔗 carnet-alumnos-nodes.onrender.com<br><br>
+                            <strong>Repositorio:</strong><br>
+                            💻 GitHub: edukshare-max.github.io
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📚 Documentación Técnica</h2>
+            <div class="section-content">
+                <p>
+                    El proyecto cuenta con documentación técnica completa que incluye:
+                </p>
+                <ul style="list-style: disc; padding-left: 20px; margin-top: 15px; line-height: 1.8;">
+                    <li>Manual de usuario para estudiantes y personal</li>
+                    <li>Guía de administración del sistema</li>
+                    <li>Documentación de API RESTful</li>
+                    <li>Procedimientos de seguridad y respaldo</li>
+                    <li>Instrucciones de despliegue y mantenimiento</li>
+                    <li>Guías de resolución de problemas</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🔐 Aspectos de Seguridad</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h4>Protección de Datos</h4>
+                    <p>El sistema cumple con las normativas de protección de datos personales, implementando cifrado end-to-end y almacenamiento seguro en Azure Cloud.</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Autenticación</h4>
+                    <p>Sistema de autenticación robusto con JWT, expiración automática de sesiones y validación de identidad contra base de datos institucional.</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Auditoría</h4>
+                    <p>Registro completo de accesos y modificaciones, permitiendo trazabilidad de todas las operaciones realizadas en el sistema.</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Respaldos</h4>
+                    <p>Respaldos automáticos diarios en Azure Cosmos DB con retención de 30 días y recuperación ante desastres.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="conclusion-box">
+            <h3>💬 Agradecimientos</h3>
+            <p>
+                Este proyecto ha sido posible gracias al apoyo y colaboración de múltiples instancias de la Universidad 
+                Autónoma de Guerrero. Agradecemos especialmente a la Rectoría por su confianza en esta iniciativa, 
+                al Centro de Investigación Transdisciplinar por proporcionar el marco institucional, y a todo el 
+                personal de la Dirección de Innovación en Salud Universitaria por su dedicación y compromiso con 
+                la excelencia.
+            </p>
+            <p style="margin-top: 15px;">
+                Esperamos que este sistema sea el primero de muchos proyectos de innovación que fortalezcan a 
+                nuestra universidad y beneficien a toda la comunidad universitaria.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🏆</div>
+            <div style="font-size: 24px; font-weight: 700; color: #8B1538; margin-bottom: 10px;">
+                Universidad Autónoma de Guerrero
+            </div>
+            <div style="font-size: 16px; color: #7f8c8d;">
+                Innovación • Tecnología • Excelencia
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Sistema de Atención en Salud Universitaria UAGro</span>
+            <span>Página 9</span>
+            <span>Octubre 2025</span>
+        </div>
+    </div>
+
+</body>
+</html>

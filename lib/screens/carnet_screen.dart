@@ -600,7 +600,7 @@ class _CarnetScreenState extends State<CarnetScreen> {
                         children: [
                           Row(
                             children: [
-                              // Logo container
+                              // Logo container con cruz médica y UAGro
                               Container(
                                 width: 48,
                                 height: 48,
@@ -616,14 +616,10 @@ class _CarnetScreenState extends State<CarnetScreen> {
                                   ],
                                 ),
                                 child: const Center(
-                                  child: Text(
-                                    'UA',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: -0.5,
-                                    ),
+                                  child: Icon(
+                                    Icons.medical_services,
+                                    color: Colors.white,
+                                    size: 28,
                                   ),
                                 ),
                               ),

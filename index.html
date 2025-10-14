@@ -29,10 +29,108 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>carnet_digital_uagro</title>
+  <title>Carnet Digital UAGro</title>
   <link rel="manifest" href="manifest.json">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      z-index: 9999;
+    }
+    
+    .logo-container {
+      width: 150px;
+      height: 150px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+      animation: pulse 2s ease-in-out infinite;
+      padding: 15px;
+    }
+    
+    .logo-icon {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .loading-text {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    
+    .loading-subtext {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
 </head>
 <body>
+  <div id="loading">
+    <div class="logo-container">
+      <img src="uagro_logo.png" alt="UAGro SASU" class="logo-icon">
+    </div>
+    <div class="loading-text">Carnet Digital UAGro</div>
+    <div class="loading-subtext">Cargando sistema de salud universitaria...</div>
+    <div class="spinner"></div>
+  </div>
+  
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Ocultar pantalla de carga cuando Flutter esté listo
+    window.addEventListener('flutter-first-frame', function() {
+      const loading = document.getElementById('loading');
+      if (loading) {
+        loading.style.opacity = '0';
+        loading.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => loading.remove(), 500);
+      }
+    });
+  </script>
 </body>
 </html>
